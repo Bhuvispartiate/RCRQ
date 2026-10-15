@@ -1,0 +1,2241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Enterprise Cyber Risk Assessment Topology Map</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-primary: #0a0e17;
+      --bg-secondary: #0f172a;
+      --bg-tertiary: #1e293b;
+      --bg-card: rgba(15, 23, 42, 0.92);
+      --bg-card-hover: rgba(30, 41, 59, 0.97);
+      --border-color: #334155;
+      --border-subtle: #1e293b;
+      --border-focus: #3b82f6;
+      --text-primary: #f8fafc;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      --accent-blue: #3b82f6;
+      --accent-cyan: #06b6d4;
+      --accent-purple: #8b5cf6;
+      --accent-emerald: #10b981;
+      --accent-amber: #f59e0b;
+      --accent-rose: #f43f5e;
+      
+      /* Department specific hue accents */
+      --dept-1: #3b82f6;
+      --dept-2: #10b981;
+      --dept-3: #0284c7;
+      --dept-4: #8b5cf6;
+      --dept-5: #06b6d4;
+      --dept-6: #f43f5e;
+      --dept-7: #f59e0b;
+      --dept-8: #14b8a6;
+      --dept-9: #a855f7;
+      --dept-10: #ec4899;
+      --dept-11: #ea580c;
+      --dept-12: #64748b;
+      --dept-13: #d97706;
+      --dept-14: #2563eb;
+
+      /* Query Type Badges */
+      --type-yesno: #4f46e5;
+      --type-text: #0d9488;
+      --type-numeric: #059669;
+      --type-multiselect: #7c3aed;
+      --type-dropdown: #d97706;
+      --type-table: #2563eb;
+      --type-date: #e11d48;
+      --type-signature: #9f1239;
+
+      --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      overflow: hidden;
+      width: 100vw;
+      height: 100vh;
+      user-select: none;
+    }
+
+    /* FULLSCREEN WORKSPACE CANVAS */
+    .workspace {
+      width: 100vw;
+      height: 100vh;
+      position: relative;
+      overflow: hidden;
+      background: radial-gradient(circle at 50% 50%, rgba(30, 41, 59, 0.22) 0%, rgba(10, 14, 23, 1) 100%);
+    }
+
+    /* VIEWPORT CANVAS (PAN & ZOOM CONTAINER) */
+    .viewport-canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      transform-origin: 0 0;
+      cursor: default;
+    }
+
+    .viewport-canvas.panning {
+      cursor: grabbing !important;
+    }
+
+    /* SVG CONNECTION CURVES */
+    .flow-svg-layer {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 9000px;
+      height: 7000px;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .flow-path {
+      fill: none;
+      stroke: #334155;
+      stroke-width: 2.5px;
+      stroke-linecap: round;
+      transition: stroke 0.2s ease, stroke-width 0.2s ease;
+    }
+
+    .flow-path.highlight {
+      stroke: var(--accent-blue) !important;
+      stroke-width: 3.5px !important;
+      stroke-opacity: 0.9 !important;
+      filter: drop-shadow(0 0 8px rgba(59, 130, 246, 0.7));
+    }
+
+    /* NODES CONTAINER */
+    .nodes-container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 9000px;
+      height: 7000px;
+      z-index: 2;
+    }
+
+    /* FLOATING MINIMAL BRAND PILL (NO FULL TOOLBAR) */
+    .floating-brand-pill {
+      position: fixed;
+      top: 18px;
+      left: 24px;
+      background: rgba(15, 23, 42, 0.88);
+      border: 1px solid var(--border-color);
+      border-radius: 30px;
+      padding: 6px 16px 6px 8px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      backdrop-filter: blur(14px);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      z-index: 80;
+    }
+
+    .pill-icon {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #2563eb, #7c3aed);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 13px;
+      color: #fff;
+    }
+
+    .pill-info {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .pill-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .pill-sub {
+      font-size: 10px;
+      color: var(--text-secondary);
+    }
+
+    .drag-hint-badge {
+      font-size: 9.5px;
+      background: rgba(16, 185, 129, 0.15);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      padding: 2px 7px;
+      border-radius: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    /* FLOATING QUICK ACTIONS BAR (MINIMAL) */
+    .floating-action-cluster {
+      position: fixed;
+      top: 18px;
+      right: 24px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      z-index: 80;
+    }
+
+    .search-float-box {
+      position: relative;
+      width: 240px;
+    }
+
+    .search-float-input {
+      width: 100%;
+      height: 36px;
+      background: rgba(15, 23, 42, 0.88);
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      padding: 0 12px 0 32px;
+      color: #fff;
+      font-size: 12px;
+      backdrop-filter: blur(14px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+      outline: none;
+      transition: all 0.2s ease;
+    }
+
+    .search-float-input:focus {
+      border-color: var(--accent-blue);
+      box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
+      background: rgba(30, 41, 59, 0.95);
+    }
+
+    .search-float-icon {
+      position: absolute;
+      left: 11px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      pointer-events: none;
+    }
+
+    .search-hit-pill {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 10px;
+      font-family: var(--font-mono);
+      color: var(--accent-blue);
+      display: none;
+    }
+
+    .float-btn {
+      height: 36px;
+      padding: 0 14px;
+      background: rgba(15, 23, 42, 0.88);
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      color: var(--text-primary);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      backdrop-filter: blur(14px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+      transition: all 0.2s ease;
+    }
+
+    .float-btn:hover {
+      background: rgba(30, 41, 59, 0.95);
+      border-color: var(--accent-blue);
+    }
+
+    /* CENTRAL ENTERPRISE GOVERNANCE ROOT NODE (DRAGGABLE) */
+    .root-assessment-node {
+      position: absolute;
+      width: 440px;
+      background: linear-gradient(135deg, rgba(30, 41, 59, 0.96), rgba(15, 23, 42, 0.98));
+      border: 2px solid #3b82f6;
+      border-radius: 16px;
+      padding: 22px;
+      box-shadow: 0 20px 45px rgba(0, 0, 0, 0.65), 0 0 35px rgba(59, 130, 246, 0.25);
+      cursor: grab;
+      user-select: none;
+      z-index: 10;
+      transition: box-shadow 0.2s ease, border-color 0.2s ease;
+    }
+
+    .root-assessment-node:active,
+    .root-assessment-node.is-dragging {
+      cursor: grabbing !important;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8), 0 0 45px rgba(59, 130, 246, 0.5);
+      border-color: #60a5fa;
+      z-index: 1000;
+    }
+
+    .root-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .root-brand-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .root-badge {
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      background: #3b82f6;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+    }
+
+    .root-title {
+      font-size: 15px;
+      font-weight: 800;
+      color: #fff;
+      line-height: 1.2;
+    }
+
+    .drag-grip-icon {
+      opacity: 0.4;
+      transition: opacity 0.2s ease;
+    }
+
+    .root-assessment-node:hover .drag-grip-icon,
+    .dept-card-node:hover .drag-grip-icon {
+      opacity: 0.9;
+    }
+
+    .root-desc {
+      font-size: 11.5px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+      margin-bottom: 14px;
+    }
+
+    .root-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 10px;
+      text-align: center;
+    }
+
+    .root-stats div strong {
+      display: block;
+      font-size: 15px;
+      font-family: var(--font-mono);
+      color: var(--accent-cyan);
+    }
+
+    .root-stats div span {
+      font-size: 9.5px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      letter-spacing: 0.04em;
+    }
+
+    /* THE BIG 14 DEPARTMENT NODES (DRAGGABLE BOXES) */
+    .dept-card-node {
+      position: absolute;
+      width: 450px;
+      background: var(--bg-card);
+      border: 1.5px solid var(--border-color);
+      border-radius: 14px;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.5);
+      backdrop-filter: blur(12px);
+      z-index: 5;
+      user-select: none;
+      transition: box-shadow 0.2s ease, border-color 0.2s ease;
+    }
+
+    .dept-card-node:hover {
+      border-color: var(--card-accent, var(--accent-blue));
+      box-shadow: 0 16px 36px rgba(0,0,0,0.6);
+    }
+
+    .dept-card-node.is-dragging {
+      cursor: grabbing !important;
+      border-color: #60a5fa !important;
+      box-shadow: 0 25px 65px rgba(0,0,0,0.8), 0 0 30px rgba(59, 130, 246, 0.4) !important;
+      z-index: 999 !important;
+      transform: scale(1.015);
+    }
+
+    .dept-header {
+      padding: 16px 18px;
+      cursor: grab;
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      background: rgba(30, 41, 59, 0.35);
+      border-top-left-radius: 13px;
+      border-top-right-radius: 13px;
+    }
+
+    .dept-header:active {
+      cursor: grabbing;
+    }
+
+    .dept-meta-left {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+    }
+
+    .dept-num-pill {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: var(--card-accent, var(--accent-blue));
+      color: #fff;
+      font-weight: 800;
+      font-size: 14px;
+      font-family: var(--font-mono);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      flex-shrink: 0;
+    }
+
+    .dept-headings h3 {
+      font-size: 13.5px;
+      font-weight: 700;
+      color: var(--text-primary);
+      line-height: 1.3;
+    }
+
+    .dept-headings .dept-responsible {
+      font-size: 11px;
+      color: var(--text-secondary);
+      margin-top: 3px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .dept-header-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .dept-badge-count {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text-primary);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      white-space: nowrap;
+    }
+
+    /* SEGMENTS & CHIPS INSIDE BOX */
+    .dept-body {
+      padding: 16px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-height: 460px;
+      overflow-y: auto;
+    }
+
+    .dept-body::-webkit-scrollbar {
+      width: 5px;
+    }
+    .dept-body::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    .dept-body::-webkit-scrollbar-thumb {
+      background: rgba(255,255,255,0.1);
+      border-radius: 4px;
+    }
+
+    .segment-box {
+      background: rgba(15, 23, 42, 0.65);
+      border: 1px solid var(--border-subtle);
+      border-radius: 10px;
+      padding: 10px 12px;
+      transition: all 0.2s ease;
+    }
+
+    .segment-box:hover {
+      border-color: var(--border-color);
+      background: rgba(30, 41, 59, 0.45);
+    }
+
+    .segment-title-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+    }
+
+    .segment-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .segment-letter {
+      width: 18px;
+      height: 18px;
+      border-radius: 4px;
+      background: rgba(255, 255, 255, 0.1);
+      font-size: 10px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-secondary);
+      font-family: var(--font-mono);
+    }
+
+    .segment-count {
+      font-size: 10px;
+      font-family: var(--font-mono);
+      color: var(--text-muted);
+    }
+
+    .query-chips-flow {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      margin-top: 8px;
+      padding-top: 8px;
+      border-top: 1px dashed rgba(255, 255, 255, 0.08);
+    }
+
+    .query-chip {
+      font-size: 10px;
+      font-family: var(--font-mono);
+      font-weight: 600;
+      padding: 3px 7px;
+      border-radius: 5px;
+      background: rgba(30, 41, 59, 0.9);
+      color: var(--text-secondary);
+      border: 1px solid var(--border-color);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: all 0.15s ease;
+    }
+
+    .query-chip:hover {
+      color: #fff;
+      transform: scale(1.05);
+      border-color: #60a5fa;
+      background: #1e3a8a;
+    }
+
+    .query-chip .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--type-color, #3b82f6);
+    }
+
+    .query-chip.active-selected {
+      background: #2563eb;
+      color: #fff;
+      border-color: #93c5fd;
+      box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+    }
+
+    /* FLOATING CANVAS CONTROLS */
+    .floating-bottom-controls {
+      position: fixed;
+      bottom: 24px;
+      left: 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      z-index: 80;
+    }
+
+    .zoom-btn-cluster {
+      display: flex;
+      background: rgba(15, 23, 42, 0.88);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+      backdrop-filter: blur(14px);
+    }
+
+    .zoom-btn {
+      width: 36px;
+      height: 36px;
+      background: transparent;
+      border: none;
+      color: var(--text-primary);
+      font-size: 15px;
+      font-weight: bold;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.15s ease;
+    }
+
+    .zoom-btn:hover {
+      background: rgba(51, 65, 85, 0.8);
+    }
+
+    .zoom-btn + .zoom-btn {
+      border-left: 1px solid var(--border-subtle);
+    }
+
+    /* MINIMAP */
+    .minimap-panel {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      width: 190px;
+      height: 130px;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+      backdrop-filter: blur(12px);
+      z-index: 80;
+      overflow: hidden;
+    }
+
+    .minimap-header {
+      padding: 4px 8px;
+      background: rgba(30, 41, 59, 0.8);
+      font-size: 9.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .minimap-canvas {
+      width: 100%;
+      height: calc(100% - 20px);
+      position: relative;
+    }
+
+    .minimap-viewport-indicator {
+      position: absolute;
+      border: 1.5px solid var(--accent-blue);
+      background: rgba(59, 130, 246, 0.15);
+      pointer-events: none;
+    }
+
+    /* QUERY INSPECTOR DRAWER */
+    .inspector-drawer {
+      position: fixed;
+      top: 0;
+      right: -520px;
+      width: 480px;
+      height: 100vh;
+      background: rgba(15, 23, 42, 0.98);
+      border-left: 1px solid var(--border-color);
+      box-shadow: -20px 0 50px rgba(0,0,0,0.7);
+      backdrop-filter: blur(20px);
+      z-index: 200;
+      transition: right 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .inspector-drawer.open {
+      right: 0;
+    }
+
+    .drawer-header {
+      padding: 20px 22px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      background: rgba(30, 41, 59, 0.4);
+    }
+
+    .drawer-close-btn {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+      width: 30px;
+      height: 30px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 16px;
+      transition: all 0.15s ease;
+    }
+
+    .drawer-close-btn:hover {
+      background: rgba(239, 68, 68, 0.2);
+      border-color: #ef4444;
+      color: #ef4444;
+    }
+
+    .drawer-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .drawer-meta-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 6px;
+      margin-bottom: 6px;
+    }
+
+    .drawer-title {
+      font-size: 15px;
+      font-weight: 700;
+      line-height: 1.4;
+      color: var(--text-primary);
+    }
+
+    .drawer-section-card {
+      background: rgba(30, 41, 59, 0.5);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 14px 16px;
+    }
+
+    .drawer-section-title {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .meta-key-val {
+      display: grid;
+      grid-template-columns: 110px 1fr;
+      gap: 8px 12px;
+      font-size: 12px;
+      line-height: 1.4;
+    }
+
+    .meta-key {
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+
+    .meta-val {
+      color: var(--text-primary);
+      font-weight: 600;
+    }
+
+    /* ASSESSMENT SIMULATOR */
+    .simulator-container {
+      background: rgba(15, 23, 42, 0.75);
+      border: 1px solid #3b82f6;
+      border-radius: 10px;
+      padding: 16px;
+    }
+
+    .sim-toggle-row {
+      display: flex;
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    .sim-btn-choice {
+      flex: 1;
+      padding: 8px;
+      border-radius: 6px;
+      background: rgba(30, 41, 59, 0.8);
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.15s ease;
+    }
+
+    .sim-btn-choice.selected {
+      background: var(--accent-blue);
+      border-color: #60a5fa;
+      color: #fff;
+    }
+
+    .sim-textarea {
+      width: 100%;
+      height: 80px;
+      background: rgba(30, 41, 59, 0.8);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      color: #fff;
+      font-size: 12px;
+      font-family: var(--font-sans);
+      padding: 8px 10px;
+      margin-top: 8px;
+      resize: vertical;
+    }
+
+    .sim-input {
+      width: 100%;
+      background: rgba(30, 41, 59, 0.8);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      color: #fff;
+      font-size: 12px;
+      font-family: var(--font-sans);
+      padding: 8px 10px;
+      margin-top: 8px;
+    }
+
+    .evidence-upload-zone {
+      margin-top: 10px;
+      border: 1.5px dashed var(--border-color);
+      border-radius: 8px;
+      padding: 12px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      background: rgba(15, 23, 42, 0.4);
+    }
+
+    .evidence-upload-zone:hover {
+      border-color: var(--accent-blue);
+      background: rgba(59, 130, 246, 0.05);
+    }
+
+    /* TOAST */
+    .toast-msg {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: rgba(15, 23, 42, 0.95);
+      border: 1px solid #3b82f6;
+      color: #fff;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 12.5px;
+      font-weight: 600;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+      z-index: 1000;
+      transition: transform 0.25s ease;
+      pointer-events: none;
+    }
+
+    .toast-msg.show {
+      transform: translateX(-50%) translateY(0);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- FLOATING MINIMAL BRAND PILL (NO TOOLBAR) -->
+  <div class="floating-brand-pill">
+    <div class="pill-icon">14</div>
+    <div class="pill-info">
+      <div class="pill-title">
+        Enterprise Cyber Risk Assessment Map
+        <span class="drag-hint-badge">Drag & Drop Any Box</span>
+      </div>
+      <div class="pill-sub">The Big 14 Departments • 31 Segments • 267 Queries</div>
+    </div>
+  </div>
+
+  <!-- FLOATING QUICK ACTIONS (TOP RIGHT) -->
+  <div class="floating-action-cluster">
+    <div class="search-float-box">
+      <svg class="search-float-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+      <input type="text" id="global-search" class="search-float-input" placeholder="Search queries, MFA, EDR, SOC...">
+      <span class="search-hit-pill" id="search-counter">0/0</span>
+    </div>
+
+    <button class="float-btn" onclick="resetNodePositions()" title="Reset boxes to original grid layout">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"></path><path d="M21 3v5h-5"></path><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"></path><path d="M3 21v-5h5"></path></svg>
+      Reset Layout
+    </button>
+  </div>
+
+  <!-- FULLSCREEN WORKSPACE CANVAS -->
+  <main class="workspace" id="workspace">
+    <div class="viewport-canvas" id="viewport-canvas">
+      
+      <!-- DYNAMIC VECTOR CURVES CONNECTING BOXES -->
+      <svg class="flow-svg-layer" id="flow-svg">
+        <defs>
+          <filter id="glowEffect" x="-20%" y="-20%" width="140%" height="140%">
+            <feGaussianBlur stdDeviation="3" result="blur" />
+            <feComposite in="SourceGraphic" in2="blur" operator="over" />
+          </filter>
+        </defs>
+      </svg>
+
+      <!-- ALL 14 DEPARTMENT BOXES + CENTRAL ROOT (ALL DRAGGABLE) -->
+      <div class="nodes-container" id="nodes-container"></div>
+    </div>
+
+    <!-- FLOATING ZOOM CONTROLS -->
+    <div class="floating-bottom-controls">
+      <div class="zoom-btn-cluster">
+        <button class="zoom-btn" title="Zoom In" onclick="zoomCanvas(1.2)">+</button>
+        <button class="zoom-btn" title="Fit to Screen" onclick="fitView()">⛶</button>
+        <button class="zoom-btn" title="Zoom Out" onclick="zoomCanvas(0.8)">−</button>
+      </div>
+      <button class="float-btn" onclick="expandAllSegments()">Expand All</button>
+      <button class="float-btn" onclick="collapseAllSegments()">Collapse All</button>
+    </div>
+
+    <!-- FLOATING MINIMAP -->
+    <div class="minimap-panel" id="minimap-panel">
+      <div class="minimap-header">
+        <span>Topology Map</span>
+        <span id="minimap-scale">100%</span>
+      </div>
+      <div class="minimap-canvas" id="minimap-canvas">
+        <div class="minimap-viewport-indicator" id="minimap-indicator"></div>
+      </div>
+    </div>
+  </main>
+
+  <!-- QUERY INSPECTOR DRAWER -->
+  <aside class="inspector-drawer" id="inspector-drawer">
+    <div class="drawer-header">
+      <div>
+        <div class="drawer-meta-badge" id="drawer-type-badge">TYPE</div>
+        <h3 class="drawer-title" id="drawer-query-title">Query Details</h3>
+      </div>
+      <button class="drawer-close-btn" onclick="closeInspector()">✕</button>
+    </div>
+
+    <div class="drawer-content">
+      <div class="drawer-section-card">
+        <div class="drawer-section-title">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+          Question Prompt
+        </div>
+        <p id="drawer-full-text" style="font-size: 13.5px; line-height: 1.6; color: #fff;"></p>
+      </div>
+
+      <div class="drawer-section-card">
+        <div class="drawer-section-title">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2L2 7l10 5 10-5-10-5z"></path><path d="M2 17l10 5 10-5"></path><path d="M2 12l10 5 10-5"></path></svg>
+          Governance Structure
+        </div>
+        <div class="meta-key-val">
+          <span class="meta-key">Department:</span>
+          <span class="meta-val" id="drawer-dept-name">--</span>
+          <span class="meta-key">Segment:</span>
+          <span class="meta-val" id="drawer-seg-name">--</span>
+          <span class="meta-key">Responsible:</span>
+          <span class="meta-val" id="drawer-responsible">--</span>
+          <span class="meta-key">Regulatory Map:</span>
+          <span class="meta-val" id="drawer-standard">ISO 27001, NIST CSF, CERT-In, DPDP</span>
+        </div>
+      </div>
+
+      <div class="simulator-container">
+        <div class="drawer-section-title" style="color: #60a5fa;">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+          Assessment Verification Simulator
+        </div>
+        <div id="simulator-controls"></div>
+        <div class="evidence-upload-zone" onclick="simulateEvidenceUpload()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--text-secondary)" stroke-width="2" style="margin: 0 auto 4px; display: block;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+          <div style="font-size: 11px; font-weight: 600; color: #fff;">Attach Supporting Audit Artifact / Policy</div>
+          <div style="font-size: 10px; color: var(--text-muted);">PDF, XLSX, Policy Doc, or Configuration Export</div>
+        </div>
+      </div>
+
+      <div class="drawer-section-card">
+        <div class="drawer-section-title">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
+          Underwriting Rationale
+        </div>
+        <p id="drawer-underwriting-desc" style="font-size: 12px; color: var(--text-secondary); line-height: 1.5;">
+          Affects underwriting approval tiers, insurability terms, sub-limits, and deductibles under commercial cyber policy guidelines.
+        </p>
+      </div>
+    </div>
+  </aside>
+
+  <!-- TOAST -->
+  <div class="toast-msg" id="toast-msg">Notification Message</div>
+
+  <!-- COMPLETE DATASET & DRAG-AND-DROP LOGIC -->
+  <script>
+    /* MASTER DATA ARCHITECTURE: THE BIG 14 */
+    const INITIAL_ASSESSMENT_DATA = [
+      {
+        id: 1,
+        deptNumber: "01",
+        title: "Management / C-Suite / Company Secretary",
+        responsible: "CEO, CFO, Company Secretary, Board Members",
+        accent: "#3b82f6",
+        initialX: 350,
+        initialY: 480,
+        segments: [
+          {
+            letter: "A",
+            name: "Company Profile & Legal Identity",
+            queries: [
+              { id: "1.1", text: "Full legal name of each natural person, incorporated body (including subsidiaries) to be insured, with date of establishment", type: "Text", risk: "Governance" },
+              { id: "1.2", text: "List all subsidiaries to be covered under the cyber policy", type: "Text", risk: "Governance" },
+              { id: "1.3", text: "Principal address (Registered Office, Country, Pin Code, Contact Name, Email, Telephone)", type: "Text", risk: "Governance" },
+              { id: "1.4", text: "Is this a new client or existing client renewal?", type: "Dropdown", risk: "Governance" },
+              { id: "1.5", text: "Business description — State fully your core business activities", type: "Text", risk: "Medium" },
+              { id: "1.6", text: "Website address(es)", type: "Text", risk: "Medium" },
+              { id: "1.7", text: "List all website domain names (addressable from the internet) that should be covered", type: "Text", risk: "High" },
+              { id: "1.8", text: "Is the company Public or Private?", type: "Dropdown", risk: "Governance" },
+              { id: "1.9", text: "What industry does the organization belong to? (IT/ITES, Manufacturing, Retail, Pharma, BFSI, etc.)", type: "Dropdown", risk: "High" },
+              { id: "1.10", text: "Regions of operations / Customer database presence (USA, Canada, Australia, Europe, UK, Japan, Singapore, India, ROW)", type: "Multi-select", risk: "Critical" },
+              { id: "1.11", text: "Countries with data exchange agreements or cross-border partnerships — specify", type: "Multi-select", risk: "High" },
+              { id: "1.12", text: "Have you undertaken or likely to undertake work overseas? (Country, Type of Work, Revenue)", type: "Table", risk: "High" },
+              { id: "1.13", text: "What is the level of business dependency on website/online systems? (High / Medium / Low)", type: "Dropdown", risk: "Critical" },
+              { id: "1.14", text: "List of entities covered and current structure of IT-Information security team (Roles, Reporting, Strength)", type: "Text", risk: "High" },
+              { id: "1.15", text: "Is IT security infrastructure centralized or decentralized across all entities?", type: "Dropdown", risk: "High" },
+              { id: "1.16", text: "Share future plans / roadmap for improving cybersecurity architecture and timeframes", type: "Text", risk: "Medium" }
+            ]
+          },
+          {
+            letter: "B",
+            name: "Governance & Security Policies",
+            queries: [
+              { id: "1.17", text: "Documented and implemented board-approved information security policy corporate-wide and available to all?", type: "Yes / No", risk: "Critical" },
+              { id: "1.18", text: "Documented and implemented board-approved cloud security policy?", type: "Yes / No", risk: "High" },
+              { id: "1.19", text: "Management-approved policies for: Crisis Plan, IT Policy, InfoSec, Incident Mgmt, Privacy, BCP", type: "Multi-select", risk: "Critical" },
+              { id: "1.20", text: "Are security policies and procedures documented and regularly updated?", type: "Yes / No", risk: "High" },
+              { id: "1.21", text: "Are security controls aligned with industry standards (e.g. ISO 27001, NIST CSF)?", type: "Yes / No", risk: "Critical" },
+              { id: "1.22", text: "Are policies communicated effectively across the organization?", type: "Yes / No", risk: "Medium" },
+              { id: "1.23", text: "Is there a formal process for tracking changes to security policies?", type: "Yes / No", risk: "Medium" },
+              { id: "1.24", text: "Have you assigned a responsible person for info security (e.g., CISO)?", type: "Yes / No", risk: "Critical" },
+              { id: "1.25", text: "Up-to-date list of authorities and external contacts informed during security incident?", type: "Yes / No", risk: "High" },
+              { id: "1.26", text: "List all information security functions (SOC, Threat Intel, Incident Response) managing day-to-day security", type: "Text", risk: "High" }
+            ]
+          }
+        ]
+      },
+      {
+        id: 2,
+        deptNumber: "02",
+        title: "Finance / Accounts",
+        responsible: "CFO, Finance Controller, Accounts Team",
+        accent: "#10b981",
+        initialX: 860,
+        initialY: 480,
+        segments: [
+          {
+            letter: "A",
+            name: "Revenue & Financial Information",
+            queries: [
+              { id: "2.1", text: "Gross turnover/revenue for last 12 months — broken down by region and fiscal year", type: "Table", risk: "High" },
+              { id: "2.2", text: "Gross turnover/revenue created online (e-commerce) — broken down by region and year", type: "Table", risk: "High" },
+              { id: "2.3", text: "Currency of reporting (INR, USD, EUR, etc.)", type: "Dropdown", risk: "Governance" },
+              { id: "2.4", text: "Gross Profit calculation for the insured entity", type: "Numeric", risk: "High" },
+              { id: "2.5", text: "Estimated duration in which organization incurs loss of profit after cyber attack (0-8h, 8-12h, 12-24h, 24-48h+)", type: "Dropdown", risk: "Critical" }
+            ]
+          },
+          {
+            letter: "B",
+            name: "Insurance & Policy Details",
+            queries: [
+              { id: "2.6", text: "Policy Period requested (Effective From & To dates)", type: "Date", risk: "Governance" },
+              { id: "2.7", text: "Retroactive Date requested for past acts/claims", type: "Date", risk: "Critical" },
+              { id: "2.8", text: "Policy limit(s) quote requested (Sum Insured)", type: "Numeric", risk: "Critical" },
+              { id: "2.9", text: "Current cyber insurance in place or purchased previously? (Insurer, Limit, Deductible)", type: "Table", risk: "High" },
+              { id: "2.10", text: "Ever had an insurer decline proposal, cancel, or impose special punitive terms?", type: "Yes / No", risk: "Critical" },
+              { id: "2.11", text: "Are cyber extortion costs covered by existing insurance policies?", type: "Yes / No", risk: "High" },
+              { id: "2.12", text: "Formal process for assessing financial impact of security breach?", type: "Yes / No", risk: "High" }
+            ]
+          },
+          {
+            letter: "C",
+            name: "Payment & Statutory KYC",
+            queries: [
+              { id: "2.13", text: "Mode of Payment (NEFT/RTGS/Cheque), Instrument No. and Date", type: "Text", risk: "Governance" },
+              { id: "2.14", text: "Premium Amount in Figures and Words", type: "Numeric", risk: "Governance" },
+              { id: "2.15", text: "Nationality status (Indian / Non-Indian)", type: "Dropdown", risk: "Governance" },
+              { id: "2.16", text: "Permanent Account Number (PAN) Card Details", type: "Text", risk: "Governance" },
+              { id: "2.17", text: "GST Registration & State Code Details", type: "Text", risk: "Governance" },
+              { id: "2.18", text: "Source of Funds Declaration (Business, Salary, Corporate Reserves)", type: "Dropdown", risk: "Governance" }
+            ]
+          }
+        ]
+      },
+      {
+        id: 3,
+        deptNumber: "03",
+        title: "IT Infrastructure & Network Security",
+        responsible: "CTO, IT Director, Network Engineers, SysAdmins",
+        accent: "#0284c7",
+        initialX: 1370,
+        initialY: 480,
+        segments: [
+          {
+            letter: "A",
+            name: "Network Architecture & Security",
+            queries: [
+              { id: "3.1", text: "Are all internet access points secured by appropriately configured firewalls?", type: "Yes / No", risk: "Critical" },
+              { id: "3.2", text: "Implemented network solutions: DMZ, DDoS Protection, WAF, IDS/IPS, Next-Gen Firewall (NGFW)", type: "Multi-select", risk: "Critical" },
+              { id: "3.3", text: "Network segmentation and VLANs used to prevent lateral spread of attacks?", type: "Yes / No", risk: "Critical" },
+              { id: "3.4", text: "Internet-accessible systems segregated in DMZ? Explain InterVLAN security in detail", type: "Text", risk: "High" },
+              { id: "3.5", text: "Are encrypted VPNs mandatory for all remote access connections?", type: "Yes / No", risk: "Critical" },
+              { id: "3.6", text: "Is wireless network security implemented with WPA3/Enterprise encryption?", type: "Yes / No", risk: "High" },
+              { id: "3.7", text: "Process and frequency to review firewall rules (Quarterly/Half-Yearly/Annually)", type: "Dropdown", risk: "High" },
+              { id: "3.8", text: "Frequency of formal network architecture reviews", type: "Dropdown", risk: "Medium" },
+              { id: "3.9", text: "Are network traffic flow logs monitored continuously?", type: "Yes / No", risk: "High" },
+              { id: "3.10", text: "Regular audit process for network devices and switches?", type: "Yes / No", risk: "Medium" },
+              { id: "3.11", text: "External connections strictly restricted to trusted IP sources?", type: "Yes / No", risk: "High" },
+              { id: "3.12", text: "Proactive network monitoring to identify anomalies and intrusion events?", type: "Yes / No", risk: "Critical" },
+              { id: "3.13", text: "Network Access Control (NAC) deployed to prevent unauthorized devices/IoT?", type: "Yes / No", risk: "High" },
+              { id: "3.14", text: "Host-based firewall enabled on all end-user workstations and servers?", type: "Yes / No", risk: "High" },
+              { id: "3.15", text: "Web servers encrypt all confidential data in transit via modern HTTPS/TLS?", type: "Yes / No", risk: "Critical" },
+              { id: "3.16", text: "Confidential emails encrypted via S/MIME or SMTP-over-TLS?", type: "Yes / No", risk: "High" },
+              { id: "3.17", text: "Current status and ongoing roadmap towards Zero Trust Architecture (ZTA)", type: "Text", risk: "High" },
+              { id: "3.18", text: "API security framework and API gateway protection details", type: "Text", risk: "High" }
+            ]
+          },
+          {
+            letter: "B",
+            name: "Endpoint Security",
+            queries: [
+              { id: "3.19", text: "Endpoint solutions deployed: Anti-Virus, EDR, XDR, or MDR?", type: "Dropdown", risk: "Critical" },
+              { id: "3.20", text: "EDR solution (e.g. CrowdStrike, SentinelOne) deployed on 100% of endpoints/servers?", type: "Yes / No", risk: "Critical" },
+              { id: "3.21", text: "Advanced heuristic and behavioral detection beyond simple signatures deployed?", type: "Yes / No", risk: "Critical" },
+              { id: "3.22", text: "Anti-malware signatures updated automatically per vendor schedules? Date of last update", type: "Yes / No", risk: "High" },
+              { id: "3.23", text: "Full disk encryption (BitLocker/FileVault) configured across all endpoints?", type: "Yes / No", risk: "Critical" },
+              { id: "3.24", text: "Frequency of endpoint patch reviews and deployments", type: "Dropdown", risk: "High" },
+              { id: "3.25", text: "Mobile devices enrolled in centralized Mobile Device Management (MDM)?", type: "Yes / No", risk: "High" },
+              { id: "3.26", text: "Remote wipe capability for lost or stolen laptops and mobile devices?", type: "Yes / No", risk: "Critical" },
+              { id: "3.27", text: "Cadence of endpoint security compliance auditing", type: "Dropdown", risk: "Medium" },
+              { id: "3.28", text: "Removable USB storage blocked or strictly encrypted by policy?", type: "Yes / No", risk: "High" },
+              { id: "3.29", text: "Application whitelisting implemented on all endpoints and servers?", type: "Yes / No", risk: "High" },
+              { id: "3.30", text: "Technical enforcement prohibiting unauthorized portable software execution?", type: "Yes / No", risk: "High" },
+              { id: "3.31", text: "Are local administrator rights stripped from standard employee workstations?", type: "Yes / No", risk: "Critical" }
+            ]
+          },
+          {
+            letter: "C",
+            name: "Server, Cloud & Infrastructure",
+            queries: [
+              { id: "3.32", text: "Total count of individual IT devices deployed (Servers, Laptops, Desktops, Mobiles)", type: "Numeric", risk: "High" },
+              { id: "3.33", text: "SaaS services used or provided & shared data protection responsibility matrix", type: "Text", risk: "High" },
+              { id: "3.34", text: "High availability architecture for critical cyber infrastructure", type: "Yes / No", risk: "Critical" },
+              { id: "3.35", text: "Disaster Recovery (DR) site location, data center count, and last drill date", type: "Text", risk: "Critical" },
+              { id: "3.36", text: "Data centers or networks shared between group entities/subsidiaries?", type: "Yes / No", risk: "High" },
+              { id: "3.37", text: "Direct network connections or API bridges between insured's network and client systems?", type: "Yes / No", risk: "High" },
+              { id: "3.38", text: "Default administrative passwords changed across 100% of network routers and switches?", type: "Yes / No", risk: "Critical" },
+              { id: "3.39", text: "Centralized software deployment tool (SCCM/Intune/Jamf) utilized?", type: "Yes / No", risk: "Medium" },
+              { id: "3.40", text: "Redundant power generators and UPS systems protecting critical data centers?", type: "Yes / No", risk: "High" }
+            ]
+          },
+          {
+            letter: "D",
+            name: "Patch Management & Change Control",
+            queries: [
+              { id: "3.41", text: "Patch management policy ensuring critical/high vulnerabilities patched within SLAs?", type: "Yes / No", risk: "Critical" },
+              { id: "3.42", text: "Documented change management policy with pre-deployment staging validation?", type: "Yes / No", risk: "High" },
+              { id: "3.43", text: "Change control approval board (CAB) enforced for production alterations?", type: "Yes / No", risk: "High" },
+              { id: "3.44", text: "Development and staging environments strictly segregated from production?", type: "Yes / No", risk: "Critical" },
+              { id: "3.45", text: "Cadence of security patches deployed to internet-facing public servers", type: "Dropdown", risk: "Critical" }
+            ]
+          }
+        ]
+      },
+      {
+        id: 4,
+        deptNumber: "04",
+        title: "Cybersecurity / CISO Office",
+        responsible: "CISO, Security Architects, SOC Analysts, IR Leads",
+        accent: "#8b5cf6",
+        initialX: 1880,
+        initialY: 480,
+        segments: [
+          {
+            letter: "A",
+            name: "Identity & Access Management (IAM)",
+            queries: [
+              { id: "4.1", text: "Multi-Factor Authentication (MFA) enforced on all critical systems, VPNs, and email? Specify coverage %", type: "Yes / No", risk: "Critical" },
+              { id: "4.2", text: "Cadence of periodic user access rights recertification (Monthly/Quarterly/Annual)", type: "Dropdown", risk: "High" },
+              { id: "4.3", text: "Privileged Access Management (PAM) solution auditing domain admin credentials?", type: "Yes / No", risk: "Critical" },
+              { id: "4.4", text: "Account lockout policy enforced after repeated failed password attempts?", type: "Yes / No", risk: "High" },
+              { id: "4.5", text: "Role-Based Access Control (RBAC) enforced with least-privilege principles?", type: "Yes / No", risk: "High" },
+              { id: "4.6", text: "Immediate credential revocation upon employee/contractor termination SLA?", type: "Yes / No", risk: "Critical" },
+              { id: "4.7", text: "Single Sign-On (SSO) with risk-based conditional access implemented?", type: "Yes / No", risk: "Medium" },
+              { id: "4.8", text: "Password complexity standards (min 12 chars, rotation, non-dictionary, history block)", type: "Yes / No", risk: "High" },
+              { id: "4.9", text: "Unique named credentials assigned to each individual (no shared accounts)?", type: "Yes / No", risk: "Critical" },
+              { id: "4.10", text: "Access to sensitive databases restricted strictly on business-need-to-know?", type: "Yes / No", risk: "High" },
+              { id: "4.11", text: "Formal documented user provisioning and role-change approval workflows?", type: "Yes / No", risk: "Medium" }
+            ]
+          },
+          {
+            letter: "B",
+            name: "Active Directory Security",
+            queries: [
+              { id: "4.12", text: "Active Directory auditing enabled to monitor privilege escalations and policy edits?", type: "Yes / No", risk: "Critical" },
+              { id: "4.13", text: "AD Service accounts managed with least-privilege and regular password rotation?", type: "Yes / No", risk: "High" },
+              { id: "4.14", text: "AD permissions and delegation rights regularly audited?", type: "Yes / No", risk: "High" },
+              { id: "4.15", text: "Group Policy Objects (GPOs) hardened against pass-the-hash and Kerberoasting?", type: "Yes / No", risk: "Critical" },
+              { id: "4.16", text: "Real-time monitoring and alerting on Domain Admin group additions?", type: "Yes / No", risk: "Critical" }
+            ]
+          },
+          {
+            letter: "C",
+            name: "Security Monitoring, SOC & SIEM",
+            queries: [
+              { id: "4.17", text: "Dedicated 24/7 Security Operations Center (SOC) — in-house or outsourced MSSP?", type: "Dropdown", risk: "Critical" },
+              { id: "4.18", text: "SIEM solution implemented covering all IT and OT assets with real-time correlation?", type: "Yes / No", risk: "Critical" },
+              { id: "4.19", text: "Continuous threat intelligence feed ingestion in SOC workflow?", type: "Yes / No", risk: "High" },
+              { id: "4.20", text: "Real-time alerting and incident escalation matrix configured in SOC?", type: "Yes / No", risk: "Critical" },
+              { id: "4.21", text: "Security event logs collected from firewalls, servers, and domain controllers?", type: "Yes / No", risk: "Critical" },
+              { id: "4.22", text: "Centralized immutable log aggregation with write-once/WORM protection?", type: "Yes / No", risk: "High" },
+              { id: "4.23", text: "Regular threat hunting and suspicious log anomaly reviews conducted?", type: "Yes / No", risk: "High" },
+              { id: "4.24", text: "Standard Operating Procedures (SOPs) for investigating suspicious log alerts?", type: "Yes / No", risk: "High" },
+              { id: "4.25", text: "Detailed audit trails maintained for admin changes on critical systems?", type: "Yes / No", risk: "High" },
+              { id: "4.26", text: "Logs protected against unauthorized tampering, deletion, or modification?", type: "Yes / No", risk: "Critical" },
+              { id: "4.27", text: "Automated alert triggers on suspicious brute-force attempts and lateral movement?", type: "Yes / No", risk: "Critical" },
+              { id: "4.28", text: "Log retention period compliant with regulatory standards (e.g. CERT-In 180 days)?", type: "Yes / No", risk: "Critical" },
+              { id: "4.29", text: "Mean time to respond (MTTR) SLAs defined for critical severity alerts?", type: "Yes / No", risk: "High" }
+            ]
+          },
+          {
+            letter: "D",
+            name: "Data Protection & Encryption",
+            queries: [
+              { id: "4.30", text: "All confidential records leaving corporate premises electronically encrypted?", type: "Yes / No", risk: "Critical" },
+              { id: "4.31", text: "Mobile devices and laptops storing confidential records 100% encrypted?", type: "Yes / No", risk: "Critical" },
+              { id: "4.32", text: "Documented policy on cryptographic key generation, rotation, and lifecycle?", type: "Yes / No", risk: "High" },
+              { id: "4.33", text: "Data Loss Prevention (DLP) deployed on endpoints and corporate email gateways?", type: "Yes / No", risk: "High" },
+              { id: "4.34", text: "Cadence of reviewing and tuning DLP regex and classification policies", type: "Dropdown", risk: "Medium" },
+              { id: "4.35", text: "Database Activity Monitoring (DAM) deployed on critical relational databases?", type: "Yes / No", risk: "High" },
+              { id: "4.36", text: "Formal enterprise data classification standard (Public, Internal, Confidential, Restricted)?", type: "Yes / No", risk: "High" },
+              { id: "4.37", text: "Automated digital watermark and data labelling applied to files?", type: "Yes / No", risk: "Medium" },
+              { id: "4.38", text: "Employee handbook guidelines on handling classified records published?", type: "Yes / No", risk: "Medium" },
+              { id: "4.39", text: "Honeypots or deception technology deployed to detect intruder recon?", type: "Yes / No", risk: "Medium" }
+            ]
+          },
+          {
+            letter: "E",
+            name: "Threat Intelligence & Dark Web Monitoring",
+            queries: [
+              { id: "4.40", text: "Cadence of external dark web credential leak and brand impersonation scans", type: "Dropdown", risk: "High" },
+              { id: "4.41", text: "Formal threat intelligence program monitoring industry adversary TTPs?", type: "Yes / No", risk: "High" },
+              { id: "4.42", text: "Automated ingestion of commercial threat feeds into firewalls and SIEM?", type: "Yes / No", risk: "High" },
+              { id: "4.43", text: "Periodic proactive threat hunting exercises conducted by tier-3 analysts?", type: "Yes / No", risk: "Medium" },
+              { id: "4.44", text: "Information sharing partnerships with ISACs (FS-ISAC, etc.) or industry peers?", type: "Yes / No", risk: "Medium" },
+              { id: "4.45", text: "Real-time blocking of known global Indicators of Compromise (IoCs)?", type: "Yes / No", risk: "Critical" },
+              { id: "4.46", text: "Third-party risk rating and external exposure scoring services utilized?", type: "Yes / No", risk: "Medium" }
+            ]
+          },
+          {
+            letter: "F",
+            name: "Vulnerability Management & Pen Testing (VAPT)",
+            queries: [
+              { id: "4.47", text: "VAPT coverage scope, date of last test, and inclusion of Log4Shell/Spring4Shell?", type: "Text", risk: "Critical" },
+              { id: "4.48", text: "Automated weekly/monthly internal and external vulnerability scanners deployed?", type: "Yes / No", risk: "Critical" },
+              { id: "4.49", text: "Frequency of independent external third-party penetration testing (Annual/Bi-annual)", type: "Dropdown", risk: "Critical" },
+              { id: "4.50", text: "Remediation SLAs enforced: Critical < 7 days, High < 30 days?", type: "Yes / No", risk: "Critical" },
+              { id: "4.51", text: "Mandatory remediation sign-off before closing discovered vulnerabilities?", type: "Yes / No", risk: "High" },
+              { id: "4.52", text: "Executive dashboard reviews of unmitigated vulnerability backlogs?", type: "Yes / No", risk: "High" },
+              { id: "4.53", text: "Third-party software libraries and dependencies scanned for vulnerabilities?", type: "Yes / No", risk: "High" },
+              { id: "4.54", text: "CVSS risk-based prioritization utilized for vulnerability patching?", type: "Yes / No", risk: "High" },
+              { id: "4.55", text: "Internal network switches, firewalls, and routers included in vulnerability scans?", type: "Yes / No", risk: "High" },
+              { id: "4.56", text: "Standard operating procedure for emergency zero-day vulnerability responses?", type: "Yes / No", risk: "Critical" },
+              { id: "4.57", text: "Passive non-intrusive vulnerability scanning approach for sensitive SCADA/ICS?", type: "Yes / No", risk: "High" }
+            ]
+          },
+          {
+            letter: "G",
+            name: "Certifications & Regulatory Compliance",
+            queries: [
+              { id: "4.58", text: "IT Security Certifications held: ISO 27001, ISO 22301, SOC 2 Type II, PCI DSS, NIST?", type: "Multi-select", risk: "Critical" },
+              { id: "4.59", text: "Compliance with regulatory cybersecurity guidelines (CERT-In, DPDP Act, RBI/SEBI)?", type: "Yes / No", risk: "Critical" },
+              { id: "4.60", text: "International privacy regulation adherence (GDPR, HIPAA, CCPA) where applicable?", type: "Yes / No", risk: "Critical" }
+            ]
+          }
+        ]
+      },
+      {
+        id: 5,
+        deptNumber: "05",
+        title: "IT Operations / Backup & Disaster Recovery",
+        responsible: "IT Ops Manager, Backup Admins, DR Coordinators",
+        accent: "#06b6d4",
+        initialX: 350,
+        initialY: 1100,
+        segments: [
+          {
+            letter: "A",
+            name: "Backup Strategy & Integrity",
+            queries: [
+              { id: "5.1", text: "Explain backup strategy, snapshot frequency, and enterprise-wide coverage", type: "Text", risk: "Critical" },
+              { id: "5.2", text: "Automated daily backups performed across all business-critical systems and databases?", type: "Yes / No", risk: "Critical" },
+              { id: "5.3", text: "Backups encrypted both in-transit and at-rest using AES-256?", type: "Yes / No", risk: "Critical" },
+              { id: "5.4", text: "Quarterly restoration drills conducted to test backup recovery viability?", type: "Yes / No", risk: "Critical" },
+              { id: "5.5", text: "Defined Recovery Point Objective (RPO) and Recovery Time Objective (RTO)?", type: "Text", risk: "Critical" },
+              { id: "5.6", text: "Cloud-based air-gapped immutable backups deployed to prevent ransomware deletion?", type: "Yes / No", risk: "Critical" },
+              { id: "5.7", text: "Secondary backups stored in geographically distant separate seismic zones?", type: "Yes / No", risk: "High" },
+              { id: "5.8", text: "Formal documented Disaster Recovery (DR) runbooks updated within 12 months?", type: "Yes / No", risk: "Critical" },
+              { id: "5.9", text: "Automated integrity checksum checks performed to verify backup non-corruption?", type: "Yes / No", risk: "High" },
+              { id: "5.10", text: "Backup success/failure logs monitored daily by operations engineers?", type: "Yes / No", risk: "High" },
+              { id: "5.11", text: "Cryptographic erasure or physical destruction certificates for decommissioned backup media?", type: "Yes / No", risk: "Medium" }
+            ]
+          },
+          {
+            letter: "B",
+            name: "Business Continuity & Disaster Recovery (BCDR)",
+            queries: [
+              { id: "5.12", text: "Formally conducted Business Impact Analysis (BIA)? Date of last revision", type: "Date", risk: "Critical" },
+              { id: "5.13", text: "Board-approved Business Continuity Management plan explicitly addressing cyber attacks?", type: "Yes / No", risk: "Critical" },
+              { id: "5.14", text: "Offsite backup archives tested at least annually with full simulated failover?", type: "Yes / No", risk: "Critical" },
+              { id: "5.15", text: "Annual simulation exercise validating continuity of business operations during total IT outage?", type: "Text", risk: "High" },
+              { id: "5.16", text: "Hardware and network link redundancy (N+1 or 2N) deployed at critical processing sites?", type: "Yes / No", risk: "High" },
+              { id: "5.17", text: "Maximum acceptable outage (MAO / RTO) in hours for Tier-1 vs Tier-2 systems", type: "Numeric", risk: "Critical" },
+              { id: "5.18", text: "Business Continuity Plans updated following major infrastructure rearchitecting?", type: "Yes / No", risk: "Medium" },
+              { id: "5.19", text: "Tiered classification of key core business services prioritized for recovery?", type: "Yes / No", risk: "High" },
+              { id: "5.20", text: "Live production DR cutover tests conducted periodically with recorded evidence?", type: "Yes / No", risk: "High" },
+              { id: "5.21", text: "Alternate physical/remote operational work facilities secured for critical personnel?", type: "Yes / No", risk: "Medium" },
+              { id: "5.22", text: "Maximum Tolerable Downtime (MTD) defined and signed off by executive leadership?", type: "Yes / No", risk: "Critical" }
+            ]
+          }
+        ]
+      },
+      {
+        id: 6,
+        deptNumber: "06",
+        title: "Incident Response & Crisis Management",
+        responsible: "CISO, Incident Commander, Legal Counsel, PR Team",
+        accent: "#f43f5e",
+        initialX: 860,
+        initialY: 1100,
+        segments: [
+          {
+            letter: "A",
+            name: "Incident Response Framework",
+            queries: [
+              { id: "6.1", text: "Board-approved cyber security incident response plan (CSIRP) in place?", type: "Yes / No", risk: "Critical" },
+              { id: "6.2", text: "External specialized Digital Forensics and Incident Response (DFIR) retainer in place?", type: "Dropdown", risk: "Critical" },
+              { id: "6.3", text: "Incident response roles and decision-making chains of command explicitly defined?", type: "Yes / No", risk: "High" },
+              { id: "6.4", text: "Mandatory incident escalation procedures known to all technical staff and third parties?", type: "Yes / No", risk: "High" },
+              { id: "6.5", text: "Policy requiring immediate reporting of identified security weaknesses/near-misses?", type: "Yes / No", risk: "Medium" },
+              { id: "6.6", text: "Technical teams trained on digital forensic evidence preservation during triage?", type: "Yes / No", risk: "High" },
+              { id: "6.7", text: "Automated triage playbooks for phishing, ransomware, credential abuse, and DDoS?", type: "Yes / No", risk: "High" },
+              { id: "6.8", text: "Incidents formally classified by business impact severity (SEV-1 to SEV-4)?", type: "Yes / No", risk: "High" },
+              { id: "6.9", text: "Blameless post-mortem reviews conducted after every major incident with root cause analysis?", type: "Yes / No", risk: "High" },
+              { id: "6.10", text: "Executive and technical tabletop simulation exercises conducted annually?", type: "Yes / No", risk: "Critical" },
+              { id: "6.11", text: "Historical security incident registry maintained to track posture trends over time?", type: "Yes / No", risk: "Medium" },
+              { id: "6.12", text: "Statutory breach notification protocols established for CERT-In (6-hour rule) / DPDP?", type: "Yes / No", risk: "Critical" },
+              { id: "6.13", text: "Has the organization suffered any material security breaches in the past 24 months?", type: "Yes / No", risk: "Critical" }
+            ]
+          },
+          {
+            letter: "B",
+            name: "Ransomware & Extortion Preparedness",
+            queries: [
+              { id: "6.14", text: "Threat modelling and specific defense architectures against double-extortion ransomware?", type: "Yes / No", risk: "Critical" },
+              { id: "6.15", text: "Immutable offline backups and strict network segmentation preventing encryption propagation?", type: "Yes / No", risk: "Critical" },
+              { id: "6.16", text: "Formal policy on extortion negotiation, ransom non-payment, and sanctioned entities?", type: "Yes / No", risk: "Critical" },
+              { id: "6.17", text: "Pre-established liaison with cyber law enforcement authorities (Cyber Police, CERT-In)?", type: "Yes / No", risk: "High" },
+              { id: "6.18", text: "Containment playbooks to immediately isolate affected subnets and disable compromised AD?", type: "Yes / No", risk: "Critical" }
+            ]
+          }
+        ]
+      },
+      {
+        id: 7,
+        deptNumber: "07",
+        title: "SDLC / Application Development",
+        responsible: "VP Engineering, DevSecOps Leads, QA Architects",
+        accent: "#f59e0b",
+        initialX: 1370,
+        initialY: 1100,
+        segments: [
+          {
+            letter: "A",
+            name: "DevSecOps & Software Security",
+            queries: [
+              { id: "7.1", text: "Automated SAST, DAST, and dependency vulnerability scanning integrated into CI/CD pipelines?", type: "Yes / No", risk: "Critical" },
+              { id: "7.2", text: "Production data strictly sanitized and anonymized before utilization in development/testing?", type: "Yes / No", risk: "Critical" }
+            ]
+          }
+        ]
+      },
+      {
+        id: 8,
+        deptNumber: "08",
+        title: "Asset Management / IT Inventory",
+        responsible: "IT Asset Manager, CMDB Administrators",
+        accent: "#14b8a6",
+        initialX: 1880,
+        initialY: 1100,
+        segments: [
+          {
+            letter: "A",
+            name: "Asset Lifecycle & CMDB",
+            queries: [
+              { id: "8.1", text: "Comprehensive automated inventory of all hardware, virtual, and software assets maintained?", type: "Yes / No", risk: "Critical" },
+              { id: "8.2", text: "Asset records include: Criticality, Business Owner, Provisioning Date, and EOL/EOS status?", type: "Multi-select", risk: "High" },
+              { id: "8.3", text: "Formal roadmap and replacement timelines for End-of-Life / unsupported operating systems?", type: "Dropdown", risk: "Critical" },
+              { id: "8.4", text: "Standardized automated onboarding and offboarding procedures for physical IT assets?", type: "Yes / No", risk: "Medium" },
+              { id: "8.5", text: "Unified CMDB integrating on-premise hardware, public cloud instances, and SaaS services?", type: "Yes / No", risk: "High" },
+              { id: "8.6", text: "Monthly automated network sweeps to discover rogue and unmanaged hardware devices?", type: "Yes / No", risk: "Critical" },
+              { id: "8.7", text: "Network switches drop unauthorized MAC addresses via 802.1X port authentication?", type: "Yes / No", risk: "High" },
+              { id: "8.8", text: "Custody chain and employee accountability tracking for all corporate laptops?", type: "Yes / No", risk: "Medium" }
+            ]
+          }
+        ]
+      },
+      {
+        id: 9,
+        deptNumber: "09",
+        title: "Data Privacy & Sensitive Records",
+        responsible: "Data Protection Officer (DPO), Chief Privacy Officer",
+        accent: "#a855f7",
+        initialX: 350,
+        initialY: 1720,
+        segments: [
+          {
+            letter: "A",
+            name: "Privacy Governance & Data Volumes",
+            queries: [
+              { id: "9.1", text: "Formal compliance framework for statutory data privacy regulations (DPDP Act, GDPR)?", type: "Yes / No", risk: "Critical" },
+              { id: "9.2", text: "Documented Data Retention, Archival, and Cryptographic Destruction policy enforced?", type: "Yes / No", risk: "High" },
+              { id: "9.3", text: "Appointed qualified Data Protection Officer (DPO) with independent board reporting?", type: "Yes / No", risk: "High" },
+              { id: "9.4", text: "Volume of unique Personally Identifiable Information (PII) records (Total, US citizens, Overseas)", type: "Numeric", risk: "Critical" },
+              { id: "9.5", text: "Volume of Payment Card Industry (PCI / Credit Card) cardholder records stored?", type: "Numeric", risk: "Critical" },
+              { id: "9.6", text: "Volume of Protected Health Information (PHI) medical records processed or stored?", type: "Numeric", risk: "Critical" },
+              { id: "9.7", text: "Volume and classification of proprietary Intellectual Property (IP) data assets", type: "Numeric", risk: "High" },
+              { id: "9.8", text: "Narrative description of all high-risk data categories collected, stored, and shared", type: "Text", risk: "High" },
+              { id: "9.9", text: "Contract in place with credit monitoring and identity recovery bureau in case of PII leak?", type: "Yes / No", risk: "Medium" }
+            ]
+          }
+        ]
+      },
+      {
+        id: 10,
+        deptNumber: "10",
+        title: "HR / Human Resources",
+        responsible: "Chief People Officer, HR Directors, Training Leads",
+        accent: "#ec4899",
+        initialX: 860,
+        initialY: 1720,
+        segments: [
+          {
+            letter: "A",
+            name: "Workforce Security & Phishing Awareness",
+            queries: [
+              { id: "10.1", text: "Total headcount of active employees broken down by country of deployment", type: "Table", risk: "Medium" },
+              { id: "10.2", text: "Rigorous background checks and identity verification prior to employee/contractor onboarding?", type: "Yes / No", risk: "High" },
+              { id: "10.3", text: "Mandatory annual cyber security training and simulated anti-phishing campaigns?", type: "Yes / No", risk: "Critical" },
+              { id: "10.4", text: "Cadence of security awareness training delivered to workforce (Quarterly/Monthly)", type: "Dropdown", risk: "High" },
+              { id: "10.5", text: "Curriculum covers: Passwords, MFA, Social Engineering, WFH, Clean Desk, Wi-Fi Safety", type: "Multi-select", risk: "High" },
+              { id: "10.6", text: "User and Entity Behavior Analytics (UEBA) deployed to detect insider threat anomalies?", type: "Yes / No", risk: "High" }
+            ]
+          }
+        ]
+      },
+      {
+        id: 11,
+        deptNumber: "11",
+        title: "Vendor / Procurement / Third-Party Risk",
+        responsible: "Procurement Head, Vendor Risk Analysts, Legal",
+        accent: "#ea580c",
+        initialX: 1370,
+        initialY: 1720,
+        segments: [
+          {
+            letter: "A",
+            name: "Supply Chain & Third-Party Oversight",
+            queries: [
+              { id: "11.1", text: "Comprehensive register of all IT, cloud, and outsourcing vendors maintained?", type: "Yes / No", risk: "High" },
+              { id: "11.2", text: "Are core revenue operations dependent on any external technology vendors or SaaS?", type: "Yes / No", risk: "Critical" },
+              { id: "11.3", text: "Vendor contracts enforce mandatory cyber warranties, indemnity, and breach notification within 24h?", type: "Yes / No", risk: "Critical" },
+              { id: "11.4", text: "Cadence of continuous third-party cyber risk posture monitoring and auditing", type: "Dropdown", risk: "High" },
+              { id: "11.5", text: "Standardized cybersecurity minimum baseline questionnaire required before procurement?", type: "Yes / No", risk: "High" },
+              { id: "11.6", text: "Formal tiering of third parties based on data sensitivity and system connectivity?", type: "Yes / No", risk: "High" },
+              { id: "11.7", text: "Periodic on-site or virtual audits of external vendors with direct database access?", type: "Yes / No", risk: "High" },
+              { id: "11.8", text: "Annual verification of SOC 2 Type II reports and ISO 27001 certificates from cloud vendors?", type: "Yes / No", risk: "Critical" },
+              { id: "11.9", text: "List of critical vendors identified: Cloud Hosting, ISP, ERP, Payment Gateway, MSSP", type: "Multi-select", risk: "Critical" },
+              { id: "11.10", text: "Contractual right-to-audit clauses included in all strategic partner Master Service Agreements?", type: "Yes / No", risk: "High" }
+            ]
+          }
+        ]
+      },
+      {
+        id: 12,
+        deptNumber: "12",
+        title: "Physical Security / Facilities Management",
+        responsible: "Facilities Director, Corporate Physical Security",
+        accent: "#64748b",
+        initialX: 1880,
+        initialY: 1720,
+        segments: [
+          {
+            letter: "A",
+            name: "Facility Protection & Physical Controls",
+            queries: [
+              { id: "12.1", text: "Physical perimeter security, badge turnstiles, and guard patrols protecting data centers?", type: "Yes / No", risk: "High" },
+              { id: "12.2", text: "Multi-factor biometric access controls enforced for entry into server rooms?", type: "Yes / No", risk: "Critical" },
+              { id: "12.3", text: "CCTV surveillance with minimum 90-day video archive coverage across critical facilities?", type: "Yes / No", risk: "High" },
+              { id: "12.4", text: "Unused physical Ethernet network ports in public areas/conference rooms disabled?", type: "Yes / No", risk: "Medium" },
+              { id: "12.5", text: "Physical intrusion detection and alarmed emergency exit doors monitored 24/7?", type: "Yes / No", risk: "High" },
+              { id: "12.6", text: "Cadence of physical penetration testing and emergency evacuation drills conducted", type: "Dropdown", risk: "Medium" },
+              { id: "12.7", text: "Authorized access lists for server rooms reviewed and reconciled monthly?", type: "Yes / No", risk: "High" },
+              { id: "12.8", text: "Physical asset tagging and barcode inventory maintained for all equipment?", type: "Yes / No", risk: "Medium" },
+              { id: "12.9", text: "Strict visitor escort policies and mandatory signed visitor logs maintained?", type: "Yes / No", risk: "Medium" }
+            ]
+          }
+        ]
+      },
+      {
+        id: 13,
+        deptNumber: "13",
+        title: "Manufacturing / OT / Industrial Control Systems",
+        responsible: "Plant General Manager, OT Security Engineers, SCADA Leads",
+        accent: "#d97706",
+        initialX: 600,
+        initialY: 2350,
+        segments: [
+          {
+            letter: "A",
+            name: "Operational Technology (OT) & SCADA Defense",
+            queries: [
+              { id: "13.1", text: "Total count of operational manufacturing plants, factories, and industrial sites", type: "Numeric", risk: "High" },
+              { id: "13.2", text: "Third-party vendors utilized for plant automation, maintenance, or PLC programming?", type: "Yes / No", risk: "High" },
+              { id: "13.3", text: "Manufacturing OT network strictly air-gapped or separated via industrial DMZ (Purdue Model)?", type: "Yes / No", risk: "Critical" },
+              { id: "13.4", text: "Enterprise Information Security Policy specifically adapted and enforced for OT/plant systems?", type: "Yes / No", risk: "High" },
+              { id: "13.5", text: "Strict security protocols for third-party engineering laptops connecting to factory PLCs?", type: "Yes / No", risk: "Critical" },
+              { id: "13.6", text: "Application whitelisting or specialized OT anti-malware deployed on HMIs and SCADA servers?", type: "Yes / No", risk: "Critical" },
+              { id: "13.7", text: "Formal OT patch management cycle testing firmware updates during planned plant turnarounds?", type: "Yes / No", risk: "High" },
+              { id: "13.8", text: "Industrial control system software validated in test environments before deployment to line?", type: "Yes / No", risk: "High" },
+              { id: "13.9", text: "PLC and SCADA configuration logic backups maintained and tested for fast recovery?", type: "Yes / No", risk: "Critical" },
+              { id: "13.10", text: "Any unauthorized direct cellular/modem internet breakouts in the industrial environment?", type: "Yes / No", risk: "Critical" },
+              { id: "13.11", text: "Complete network topology and communication flow diagrams documented for OT?", type: "Yes / No", risk: "High" },
+              { id: "13.12", text: "Industrial wireless (WirelessHART, ISA100) isolated with strong encryption?", type: "Yes / No", risk: "High" },
+              { id: "13.13", text: "Remote access allowed into plant networks for equipment maintenance?", type: "Yes / No", risk: "Critical" },
+              { id: "13.14", text: "Four-eyes authorization and mandatory MFA enforced for any vendor remote plant access?", type: "Yes / No", risk: "Critical" },
+              { id: "13.15", text: "Pre-connection device posture verification required for all remote technician laptops?", type: "Yes / No", risk: "High" },
+              { id: "13.16", text: "Targeted safety and industrial cyber awareness training delivered to plant floor staff?", type: "Yes / No", risk: "Medium" },
+              { id: "13.17", text: "Automated real-time inventory of all connected IoT, sensors, and OT controllers?", type: "Yes / No", risk: "High" },
+              { id: "13.18", text: "Cadence of OT network vulnerability assessments utilizing passive listening tools (Nozomi/Claroty)", type: "Dropdown", risk: "High" },
+              { id: "13.19", text: "Safety Instrumented Systems (SIS) physically and logically isolated from basic process control?", type: "Yes / No", risk: "Critical" },
+              { id: "13.20", text: "Dependency of production output on corporate IT networks (SAP/ERP links)? Outage financial impact", type: "Text", risk: "Critical" }
+            ]
+          }
+        ]
+      },
+      {
+        id: 14,
+        deptNumber: "14",
+        title: "Legal / Compliance / Risk Management",
+        responsible: "General Counsel, Chief Compliance Officer, Risk Committee",
+        accent: "#2563eb",
+        initialX: 1600,
+        initialY: 2350,
+        segments: [
+          {
+            letter: "A",
+            name: "Claims History & Loss Experience",
+            queries: [
+              { id: "14.1", text: "Past 5-year history of cyber extortion, network misuse, data theft, or wire fraud incidents?", type: "Yes / No", risk: "Critical" },
+              { id: "14.2", text: "Ever experienced an unplanned business interruption > 4 hours caused by a cyber outage?", type: "Yes / No", risk: "Critical" },
+              { id: "14.3", text: "Ever experienced a ransomware extortion demand or encrypted file hostage scenario?", type: "Yes / No", risk: "Critical" },
+              { id: "14.4", text: "Ever received claims, complaints, or lawsuits regarding privacy violations or data leaks?", type: "Yes / No", risk: "Critical" },
+              { id: "14.5", text: "Subject to any regulatory inquiry, subpoena, or fine by data protection regulators?", type: "Yes / No", risk: "Critical" },
+              { id: "14.6", text: "Aware of any actual or suspected unauthorized disclosure of sensitive PII records?", type: "Yes / No", risk: "Critical" },
+              { id: "14.7", text: "Aware of any latent fact or circumstance that could foreseeably give rise to an insurance claim?", type: "Yes / No", risk: "Critical" },
+              { id: "14.8", text: "Historical schedule of all cyber claims notified to insurers in the past 5 years", type: "Table", risk: "Critical" },
+              { id: "14.9", text: "Detailed circumstances not yet formally reported to insurers which may result in claims", type: "Table", risk: "Critical" },
+              { id: "14.10", text: "Any corporate officers subjected to disciplinary or criminal proceedings for regulatory non-compliance?", type: "Table", risk: "Critical" }
+            ]
+          },
+          {
+            letter: "B",
+            name: "Legal Advisory & Regulatory Fines",
+            queries: [
+              { id: "14.11", text: "Retained specialized external cyber incident legal counsel on 24/7 emergency standby?", type: "Yes / No", risk: "High" },
+              { id: "14.12", text: "Formal process and internal reserves for managing potential regulatory penalties?", type: "Yes / No", risk: "High" }
+            ]
+          },
+          {
+            letter: "C",
+            name: "Underwriting Warranties & Declarations",
+            queries: [
+              { id: "14.13", text: "Legal Warranty of Truthfulness: Authorized sign-off attesting all disclosures are accurate", type: "Signature", risk: "Critical" },
+              { id: "14.14", text: "Statutory Anti-Money Laundering (PMLA 2002) Bona Fide Source of Funds Declaration", type: "Signature", risk: "Critical" }
+            ]
+          }
+        ]
+      }
+    ];
+
+    /* DEEP CLONE DATA FOR RUNTIME MUTATION */
+    let ASSESSMENT_DATA = JSON.parse(JSON.stringify(INITIAL_ASSESSMENT_DATA));
+
+    /* ROOT NODE DEFAULTS */
+    const INITIAL_ROOT = {
+      x: 1120,
+      y: 60,
+      width: 440,
+      height: 180
+    };
+    let ROOT_NODE = { ...INITIAL_ROOT };
+
+    /* QUERY TYPE COLORS */
+    const TYPE_COLORS = {
+      "Yes / No": "#4f46e5",
+      "Text": "#0d9488",
+      "Numeric": "#059669",
+      "Multi-select": "#7c3aed",
+      "Dropdown": "#d97706",
+      "Table": "#2563eb",
+      "Date": "#e11d48",
+      "Signature": "#9f1239"
+    };
+
+    /* CANVAS TRANSFORM & DRAG ENGINE STATE */
+    let currentScale = 0.55;
+    let panX = 80;
+    let panY = 20;
+    let isPanningCanvas = false;
+    let canvasPanStartX = 0;
+    let canvasPanStartY = 0;
+
+    // Node Drag State
+    let isDraggingNode = false;
+    let draggedNodeEl = null;
+    let draggedNodeId = null; // 'root' or dept id number
+    let nodeDragStartX = 0;
+    let nodeDragStartY = 0;
+    let initialElementLeft = 0;
+    let initialElementTop = 0;
+    let didMoveSignificantly = false;
+
+    window.addEventListener('DOMContentLoaded', () => {
+      renderAllNodes();
+      setupCanvasPanZoom();
+      setupNodeDragAndDrop();
+      setupSearch();
+      updateMinimap();
+    });
+
+    /* RENDER ALL DRAGGABLE BOXES */
+    function renderAllNodes() {
+      const container = document.getElementById('nodes-container');
+      container.innerHTML = '';
+
+      // 1. Central Root Box (Draggable)
+      const rootEl = document.createElement('div');
+      rootEl.className = 'root-assessment-node';
+      rootEl.id = 'node-root';
+      rootEl.style.left = `${ROOT_NODE.x}px`;
+      rootEl.style.top = `${ROOT_NODE.y}px`;
+      rootEl.innerHTML = `
+        <div class="root-header">
+          <div class="root-brand-left">
+            <div class="root-badge">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+            </div>
+            <div>
+              <div class="root-title">Global Cyber Underwriting Map</div>
+              <div style="font-size: 10px; color: #60a5fa; font-weight: 600;">ENTERPRISE ASSURANCE TOPOLOGY</div>
+            </div>
+          </div>
+          <svg class="drag-grip-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2"><circle cx="9" cy="6" r="1.5"></circle><circle cx="15" cy="6" r="1.5"></circle><circle cx="9" cy="12" r="1.5"></circle><circle cx="15" cy="12" r="1.5"></circle><circle cx="9" cy="18" r="1.5"></circle><circle cx="15" cy="18" r="1.5"></circle></svg>
+        </div>
+        <div class="root-desc">
+          Unified governance map spanning 14 core corporate divisions. Drag any box to reorganize your topology.
+        </div>
+        <div class="root-stats">
+          <div>
+            <strong>14</strong>
+            <span>Divisions</span>
+          </div>
+          <div>
+            <strong>31</strong>
+            <span>Segments</span>
+          </div>
+          <div>
+            <strong>267</strong>
+            <span>Queries</span>
+          </div>
+        </div>
+      `;
+      container.appendChild(rootEl);
+
+      // 2. The Big 14 Department Boxes (Draggable)
+      ASSESSMENT_DATA.forEach(dept => {
+        const deptEl = document.createElement('div');
+        deptEl.className = 'dept-card-node';
+        deptEl.id = `node-dept-${dept.id}`;
+        deptEl.style.left = `${dept.initialX}px`;
+        deptEl.style.top = `${dept.initialY}px`;
+        deptEl.style.setProperty('--card-accent', dept.accent);
+
+        const totalQueries = dept.segments.reduce((acc, s) => acc + s.queries.length, 0);
+
+        let segmentsHtml = dept.segments.map((seg, sIdx) => {
+          let queriesHtml = seg.queries.map(q => {
+            const typeColor = TYPE_COLORS[q.type] || '#3b82f6';
+            return `
+              <div class="query-chip" id="chip-${q.id.replace('.', '-')}" data-type="${q.type}" style="--type-color: ${typeColor}" onclick="openInspector('${q.id}', event)">
+                <span class="dot"></span>
+                <span>${q.id}</span>
+              </div>
+            `;
+          }).join('');
+
+          return `
+            <div class="segment-box">
+              <div class="segment-title-row" onclick="toggleSegment(this, event)">
+                <div class="segment-title">
+                  <span class="segment-letter">${seg.letter}</span>
+                  <span>${seg.name}</span>
+                </div>
+                <span class="segment-count">${seg.queries.length} Qs</span>
+              </div>
+              <div class="query-chips-flow">
+                ${queriesHtml}
+              </div>
+            </div>
+          `;
+        }).join('');
+
+        deptEl.innerHTML = `
+          <div class="dept-header" data-drag-handle="true">
+            <div class="dept-meta-left">
+              <div class="dept-num-pill">${dept.deptNumber}</div>
+              <div class="dept-headings">
+                <h3>${dept.title}</h3>
+                <div class="dept-responsible">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                  ${dept.responsible}
+                </div>
+              </div>
+            </div>
+            <div class="dept-header-right">
+              <span class="dept-badge-count">${totalQueries} Qs</span>
+              <svg class="drag-grip-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2"><circle cx="9" cy="6" r="1.5"></circle><circle cx="15" cy="6" r="1.5"></circle><circle cx="9" cy="12" r="1.5"></circle><circle cx="15" cy="12" r="1.5"></circle><circle cx="9" cy="18" r="1.5"></circle><circle cx="15" cy="18" r="1.5"></circle></svg>
+            </div>
+          </div>
+          <div class="dept-body">
+            ${segmentsHtml}
+          </div>
+        `;
+
+        container.appendChild(deptEl);
+      });
+
+      // Initial vector connector render
+      setTimeout(renderAllSvgConnectors, 60);
+    }
+
+    /* RENDER ALL VECTOR BEZIER CURVES */
+    function renderAllSvgConnectors() {
+      const svg = document.getElementById('flow-svg');
+      const defs = svg.querySelector('defs').outerHTML;
+      svg.innerHTML = defs;
+
+      ASSESSMENT_DATA.forEach(dept => {
+        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        path.setAttribute('class', 'flow-path');
+        path.setAttribute('id', `path-root-${dept.id}`);
+        path.style.stroke = dept.accent;
+        path.style.strokeOpacity = '0.38';
+        svg.appendChild(path);
+        updateSingleSvgPath(dept.id);
+      });
+    }
+
+    /* REAL-TIME SINGLE VECTOR UPDATE (CALLED DURING DRAG AT 60 FPS) */
+    function updateSingleSvgPath(deptId) {
+      const rootEl = document.getElementById('node-root');
+      const deptEl = document.getElementById(`node-dept-${deptId}`);
+      const path = document.getElementById(`path-root-${deptId}`);
+      if (!rootEl || !deptEl || !path) return;
+
+      const rx = rootEl.offsetLeft + (rootEl.offsetWidth / 2);
+      const ry = rootEl.offsetTop + rootEl.offsetHeight;
+
+      const tx = deptEl.offsetLeft + (deptEl.offsetWidth / 2);
+      const ty = deptEl.offsetTop;
+
+      // Dynamic smooth Cubic Bezier formula
+      const dx = tx - rx;
+      const dy = ty - ry;
+      const cp1x = rx + dx * 0.15;
+      const cp1y = ry + Math.max(dy * 0.5, 40);
+      const cp2x = tx - dx * 0.15;
+      const cp2y = ty - Math.max(dy * 0.5, 40);
+
+      path.setAttribute('d', `M ${rx} ${ry} C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${tx} ${ty}`);
+    }
+
+    function updateAllSvgPaths() {
+      ASSESSMENT_DATA.forEach(dept => updateSingleSvgPath(dept.id));
+    }
+
+    /* HIGH-PERFORMANCE NODE DRAG-AND-DROP SYSTEM */
+    function setupNodeDragAndDrop() {
+      const container = document.getElementById('nodes-container');
+
+      container.addEventListener('mousedown', (e) => {
+        // Find if mousedown is on root or a department card
+        const rootTarget = e.target.closest('#node-root');
+        const deptCard = e.target.closest('.dept-card-node');
+
+        if (!rootTarget && !deptCard) return;
+
+        // If clicking inside a query chip or simulator, don't drag card
+        if (e.target.closest('.query-chip') || e.target.closest('button') || e.target.closest('input') || e.target.closest('textarea')) {
+          return;
+        }
+
+        // Start Node Drag
+        isDraggingNode = true;
+        didMoveSignificantly = false;
+
+        if (rootTarget) {
+          draggedNodeEl = rootTarget;
+          draggedNodeId = 'root';
+        } else {
+          draggedNodeEl = deptCard;
+          draggedNodeId = parseInt(deptCard.id.replace('node-dept-', ''));
+        }
+
+        draggedNodeEl.classList.add('is-dragging');
+
+        nodeDragStartX = e.clientX;
+        nodeDragStartY = e.clientY;
+        initialElementLeft = draggedNodeEl.offsetLeft;
+        initialElementTop = draggedNodeEl.offsetTop;
+
+        e.stopPropagation();
+      });
+
+      window.addEventListener('mousemove', (e) => {
+        if (!isDraggingNode || !draggedNodeEl) return;
+
+        const deltaMouseX = e.clientX - nodeDragStartX;
+        const deltaMouseY = e.clientY - nodeDragStartY;
+
+        if (Math.abs(deltaMouseX) > 3 || Math.abs(deltaMouseY) > 3) {
+          didMoveSignificantly = true;
+        }
+
+        // Account for current canvas zoom scale
+        const scaledDeltaX = deltaMouseX / currentScale;
+        const scaledDeltaY = deltaMouseY / currentScale;
+
+        const newLeft = Math.max(20, initialElementLeft + scaledDeltaX);
+        const newTop = Math.max(20, initialElementTop + scaledDeltaY);
+
+        draggedNodeEl.style.left = `${newLeft}px`;
+        draggedNodeEl.style.top = `${newTop}px`;
+
+        // Update stored coordinate
+        if (draggedNodeId === 'root') {
+          ROOT_NODE.x = newLeft;
+          ROOT_NODE.y = newTop;
+          updateAllSvgPaths();
+        } else {
+          const dept = ASSESSMENT_DATA.find(d => d.id === draggedNodeId);
+          if (dept) {
+            dept.initialX = newLeft;
+            dept.initialY = newTop;
+          }
+          updateSingleSvgPath(draggedNodeId);
+        }
+
+        updateMinimap();
+      });
+
+      window.addEventListener('mouseup', () => {
+        if (isDraggingNode && draggedNodeEl) {
+          draggedNodeEl.classList.remove('is-dragging');
+          isDraggingNode = false;
+          draggedNodeEl = null;
+          draggedNodeId = null;
+        }
+      });
+    }
+
+    /* CANVAS PAN & ZOOM */
+    function setupCanvasPanZoom() {
+      const workspace = document.getElementById('workspace');
+      const canvas = document.getElementById('viewport-canvas');
+
+      applyTransform();
+
+      workspace.addEventListener('mousedown', (e) => {
+        if (isDraggingNode) return;
+        if (e.target.closest('.dept-card-node') || e.target.closest('#node-root') || e.target.closest('.inspector-drawer') || e.target.closest('.floating-brand-pill') || e.target.closest('.floating-action-cluster') || e.target.closest('.floating-bottom-controls') || e.target.closest('.minimap-panel')) {
+          return;
+        }
+
+        isPanningCanvas = true;
+        canvasPanStartX = e.clientX - panX;
+        canvasPanStartY = e.clientY - panY;
+        canvas.classList.add('panning');
+      });
+
+      window.addEventListener('mousemove', (e) => {
+        if (!isPanningCanvas) return;
+        panX = e.clientX - canvasPanStartX;
+        panY = e.clientY - canvasPanStartY;
+        applyTransform();
+        updateMinimap();
+      });
+
+      window.addEventListener('mouseup', () => {
+        if (isPanningCanvas) {
+          isPanningCanvas = false;
+          canvas.classList.remove('panning');
+        }
+      });
+
+      workspace.addEventListener('wheel', (e) => {
+        if (e.target.closest('.dept-body') || e.target.closest('.inspector-drawer')) return;
+        e.preventDefault();
+
+        const zoomFactor = e.deltaY < 0 ? 1.08 : 0.92;
+        const newScale = Math.min(Math.max(currentScale * zoomFactor, 0.16), 1.6);
+
+        const rect = workspace.getBoundingClientRect();
+        const mouseX = e.clientX - rect.left;
+        const mouseY = e.clientY - rect.top;
+
+        panX = mouseX - (mouseX - panX) * (newScale / currentScale);
+        panY = mouseY - (mouseY - panY) * (newScale / currentScale);
+        currentScale = newScale;
+
+        applyTransform();
+        updateMinimap();
+      }, { passive: false });
+    }
+
+    function applyTransform() {
+      const canvas = document.getElementById('viewport-canvas');
+      canvas.style.transform = `translate(${panX}px, ${panY}px) scale(${currentScale})`;
+    }
+
+    function zoomCanvas(factor) {
+      currentScale = Math.min(Math.max(currentScale * factor, 0.16), 1.6);
+      applyTransform();
+      updateMinimap();
+    }
+
+    function fitView() {
+      currentScale = 0.55;
+      panX = 80;
+      panY = 20;
+      applyTransform();
+      updateMinimap();
+      showToast("Canvas viewport reset");
+    }
+
+    function resetNodePositions() {
+      ASSESSMENT_DATA = JSON.parse(JSON.stringify(INITIAL_ASSESSMENT_DATA));
+      ROOT_NODE = { ...INITIAL_ROOT };
+
+      const rootEl = document.getElementById('node-root');
+      if (rootEl) {
+        rootEl.style.left = `${ROOT_NODE.x}px`;
+        rootEl.style.top = `${ROOT_NODE.y}px`;
+      }
+
+      ASSESSMENT_DATA.forEach(dept => {
+        const el = document.getElementById(`node-dept-${dept.id}`);
+        if (el) {
+          el.style.left = `${dept.initialX}px`;
+          el.style.top = `${dept.initialY}px`;
+        }
+      });
+
+      updateAllSvgPaths();
+      fitView();
+      showToast("Reset all 14 boxes to default layout");
+    }
+
+    /* MINIMAP VIEWPORT CALCULATION */
+    function updateMinimap() {
+      const indicator = document.getElementById('minimap-indicator');
+      const scaleText = document.getElementById('minimap-scale');
+      if (scaleText) scaleText.innerText = `${Math.round(currentScale * 100)}%`;
+
+      const workspace = document.getElementById('workspace');
+      const wsWidth = workspace.clientWidth;
+      const wsHeight = workspace.clientHeight;
+
+      const mapW = 190;
+      const mapH = 110;
+      const totalW = 3400;
+      const totalH = 3000;
+
+      const normX = Math.max(0, -panX / (totalW * currentScale));
+      const normY = Math.max(0, -panY / (totalH * currentScale));
+      const normW = Math.min(1, wsWidth / (totalW * currentScale));
+      const normH = Math.min(1, wsHeight / (totalH * currentScale));
+
+      indicator.style.left = `${normX * mapW}px`;
+      indicator.style.top = `${normY * mapH}px`;
+      indicator.style.width = `${Math.max(16, normW * mapW)}px`;
+      indicator.style.height = `${Math.max(12, normH * mapH)}px`;
+    }
+
+    /* SEGMENT EXPAND / COLLAPSE */
+    function toggleSegment(titleRow, event) {
+      event.stopPropagation();
+      const parent = titleRow.parentElement;
+      const flow = parent.querySelector('.query-chips-flow');
+      if (flow) {
+        flow.style.display = flow.style.display === 'none' ? 'flex' : 'none';
+      }
+    }
+
+    function expandAllSegments() {
+      document.querySelectorAll('.query-chips-flow').forEach(el => el.style.display = 'flex');
+      showToast("Expanded all 31 segments");
+    }
+
+    function collapseAllSegments() {
+      document.querySelectorAll('.query-chips-flow').forEach(el => el.style.display = 'none');
+      showToast("Collapsed segments for macro view");
+    }
+
+    /* SEARCH FUNCTIONALITY */
+    function setupSearch() {
+      const searchInput = document.getElementById('global-search');
+      const counter = document.getElementById('search-counter');
+
+      searchInput.addEventListener('input', (e) => {
+        const query = e.target.value.toLowerCase().trim();
+        if (!query) {
+          counter.style.display = 'none';
+          document.querySelectorAll('.query-chip').forEach(c => c.classList.remove('active-selected'));
+          return;
+        }
+
+        let matchCount = 0;
+        let firstDept = null;
+
+        ASSESSMENT_DATA.forEach(dept => {
+          dept.segments.forEach(seg => {
+            seg.queries.forEach(q => {
+              const chip = document.getElementById(`chip-${q.id.replace('.', '-')}`);
+              const isMatch = q.id.toLowerCase().includes(query) || q.text.toLowerCase().includes(query) || q.type.toLowerCase().includes(query);
+              if (isMatch) {
+                matchCount++;
+                if (!firstDept) firstDept = dept;
+                if (chip) chip.classList.add('active-selected');
+              } else {
+                if (chip) chip.classList.remove('active-selected');
+              }
+            });
+          });
+        });
+
+        counter.innerText = `${matchCount} hits`;
+        counter.style.display = 'block';
+
+        if (firstDept) {
+          panToDept(firstDept);
+        }
+      });
+    }
+
+    function panToDept(dept) {
+      const workspace = document.getElementById('workspace');
+      currentScale = 0.85;
+      panX = (workspace.clientWidth / 2) - (dept.initialX + 225) * currentScale;
+      panY = (workspace.clientHeight / 2) - (dept.initialY + 160) * currentScale;
+      applyTransform();
+      updateMinimap();
+
+      document.querySelectorAll('.flow-path').forEach(p => p.classList.remove('highlight'));
+      const activePath = document.getElementById(`path-root-${dept.id}`);
+      if (activePath) activePath.classList.add('highlight');
+    }
+
+    /* INSPECTOR DRAWER */
+    function openInspector(queryId, event) {
+      if (event) event.stopPropagation();
+
+      let foundQuery = null;
+      let foundDept = null;
+      let foundSeg = null;
+
+      for (const dept of ASSESSMENT_DATA) {
+        for (const seg of dept.segments) {
+          const q = seg.queries.find(item => item.id === queryId);
+          if (q) {
+            foundQuery = q;
+            foundDept = dept;
+            foundSeg = seg;
+            break;
+          }
+        }
+        if (foundQuery) break;
+      }
+
+      if (!foundQuery) return;
+
+      const drawer = document.getElementById('inspector-drawer');
+      const typeBadge = document.getElementById('drawer-type-badge');
+      const title = document.getElementById('drawer-query-title');
+      const fullText = document.getElementById('drawer-full-text');
+      const deptName = document.getElementById('drawer-dept-name');
+      const segName = document.getElementById('drawer-seg-name');
+      const responsible = document.getElementById('drawer-responsible');
+      const controls = document.getElementById('simulator-controls');
+
+      const typeColor = TYPE_COLORS[foundQuery.type] || '#3b82f6';
+      typeBadge.innerText = `${foundQuery.type.toUpperCase()}`;
+      typeBadge.style.background = `${typeColor}22`;
+      typeBadge.style.color = typeColor;
+      typeBadge.style.border = `1px solid ${typeColor}55`;
+
+      title.innerText = `Query ${foundQuery.id}`;
+      fullText.innerText = foundQuery.text;
+      deptName.innerText = `Dept ${foundDept.deptNumber}: ${foundDept.title}`;
+      segName.innerText = `${foundSeg.letter}. ${foundSeg.name}`;
+      responsible.innerText = foundDept.responsible;
+
+      controls.innerHTML = renderSimulatorControl(foundQuery);
+
+      drawer.classList.add('open');
+
+      document.querySelectorAll('.query-chip').forEach(c => c.classList.remove('active-selected'));
+      const activeChip = document.getElementById(`chip-${foundQuery.id.replace('.', '-')}`);
+      if (activeChip) activeChip.classList.add('active-selected');
+    }
+
+    function renderSimulatorControl(query) {
+      if (query.type === 'Yes / No') {
+        return `
+          <div style="font-size:11.5px; color:var(--text-secondary); margin-bottom:6px;">Select verification response:</div>
+          <div class="sim-toggle-row">
+            <button class="sim-btn-choice selected" onclick="selectChoice(this)">✓ YES (Compliant)</button>
+            <button class="sim-btn-choice" onclick="selectChoice(this)">✕ NO (Deficiency)</button>
+          </div>
+          <textarea class="sim-textarea" placeholder="Mandatory technical justification, implementation details, or compensating controls..."></textarea>
+        `;
+      } else if (query.type === 'Numeric') {
+        return `
+          <div style="font-size:11.5px; color:var(--text-secondary); margin-bottom:4px;">Enter quantified asset/revenue metric:</div>
+          <input type="number" class="sim-input" placeholder="e.g. 500,000" />
+        `;
+      } else if (query.type === 'Date') {
+        return `
+          <div style="font-size:11.5px; color:var(--text-secondary); margin-bottom:4px;">Select effective audit/policy date:</div>
+          <input type="date" class="sim-input" value="2026-10-15" />
+        `;
+      } else if (query.type === 'Dropdown') {
+        return `
+          <div style="font-size:11.5px; color:var(--text-secondary); margin-bottom:4px;">Select cadence or architectural category:</div>
+          <select class="sim-input">
+            <option>Quarterly Audited</option>
+            <option>Half-Yearly Review</option>
+            <option>Annual Independent Verification</option>
+            <option>Continuous / Automated</option>
+            <option>No Formal Mechanism</option>
+          </select>
+        `;
+      } else if (query.type === 'Signature') {
+        return `
+          <div style="font-size:11.5px; color:var(--text-secondary); margin-bottom:6px;">Executive Declaration Attestation:</div>
+          <div style="border:1px solid #334155; border-radius:6px; padding:10px; background:rgba(15,23,42,0.9); font-size:11px; line-height:1.4; color:#94a3b8; font-style:italic; margin-bottom:8px;">
+            "I hereby warrant that the answers given are true, complete in all material respects, and no material cyber risks have been withheld."
+          </div>
+          <input type="text" class="sim-input" placeholder="Signer Full Legal Name & Official C-Suite Designation" />
+        `;
+      } else {
+        return `
+          <div style="font-size:11.5px; color:var(--text-secondary); margin-bottom:4px;">Enter enterprise response / policy narrative:</div>
+          <textarea class="sim-textarea" placeholder="Detailed multi-line explanation of organizational governance and security architecture..."></textarea>
+        `;
+      }
+    }
+
+    function selectChoice(btn) {
+      btn.parentElement.querySelectorAll('.sim-btn-choice').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+    }
+
+    function closeInspector() {
+      document.getElementById('inspector-drawer').classList.remove('open');
+      document.querySelectorAll('.query-chip').forEach(c => c.classList.remove('active-selected'));
+    }
+
+    function simulateEvidenceUpload() {
+      showToast("Evidence Attachment Simulator: File staged for audit review.");
+    }
+
+    function showToast(message) {
+      const toast = document.getElementById('toast-msg');
+      toast.innerText = message;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2400);
+    }
+  </script>
+</body>
+</html>
