@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Enterprise Cyber Risk Assessment Topology Map</title>
+  <title>RYSKMEN Cyber Risk Quantification Map (R-CRQ™)</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -895,10 +895,10 @@
     <div class="pill-icon">14</div>
     <div class="pill-info">
       <div class="pill-title">
-        Enterprise Cyber Risk Assessment Map
+        RYSKMEN Cyber Risk Quantification Map (R-CRQ™)
         <span class="drag-hint-badge">Drag & Drop Any Box</span>
       </div>
-      <div class="pill-sub">The Big 14 Departments • 31 Segments • 267 Queries</div>
+      <div class="pill-sub">The Big 14 Departments • 31 Segments • 281 Queries (R-CRQ™ Aligned)</div>
     </div>
   </div>
 
@@ -1069,7 +1069,13 @@
               { id: "1.23", text: "Is there a formal process for tracking changes to security policies?", type: "Yes / No", risk: "Medium" },
               { id: "1.24", text: "Have you assigned a responsible person for info security (e.g., CISO)?", type: "Yes / No", risk: "Critical" },
               { id: "1.25", text: "Up-to-date list of authorities and external contacts informed during security incident?", type: "Yes / No", risk: "High" },
-              { id: "1.26", text: "List all information security functions (SOC, Threat Intel, Incident Response) managing day-to-day security", type: "Text", risk: "High" }
+              { id: "1.26", text: "List all information security functions (SOC, Threat Intel, Incident Response) managing day-to-day security", type: "Text", risk: "High" },
+              { id: "1.27", text: "Does executive management / the Board review organizational cyber risks at least quarterly?", type: "Yes / No", risk: "Critical" },
+              { id: "1.28", text: "Are cyber security and technology risks formally included in the organization's risk register?", type: "Yes / No", risk: "High" },
+              { id: "1.29", text: "Is there an annual formal cyber risk assessment process conducted across all business units?", type: "Yes / No", risk: "Critical" },
+              { id: "1.30", text: "Is cyber security formally incorporated into annual business planning, capital allocation, and new initiatives?", type: "Yes / No", risk: "High" },
+              { id: "1.31", text: "Are cyber security incidents, near-misses, and regulatory disclosures formally reported to senior management?", type: "Yes / No", risk: "Critical" },
+              { id: "1.32", text: "Is a dedicated cyber security operational and capital expenditure budget allocated and reviewed annually?", type: "Yes / No", risk: "High" }
             ]
           }
         ]
@@ -1104,7 +1110,8 @@
               { id: "2.9", text: "Current cyber insurance in place or purchased previously? (Insurer, Limit, Deductible)", type: "Table", risk: "High" },
               { id: "2.10", text: "Ever had an insurer decline proposal, cancel, or impose special punitive terms?", type: "Yes / No", risk: "Critical" },
               { id: "2.11", text: "Are cyber extortion costs covered by existing insurance policies?", type: "Yes / No", risk: "High" },
-              { id: "2.12", text: "Formal process for assessing financial impact of security breach?", type: "Yes / No", risk: "High" }
+              { id: "2.12", text: "Formal process for assessing financial impact of security breach?", type: "Yes / No", risk: "High" },
+              { id: "2.19", text: "Is cyber insurance coverage, limits of indemnity, and deductible adequacy reviewed annually against emerging exposure?", type: "Yes / No", risk: "High" }
             ]
           },
           {
@@ -1151,7 +1158,8 @@
               { id: "3.15", text: "Web servers encrypt all confidential data in transit via modern HTTPS/TLS?", type: "Yes / No", risk: "Critical" },
               { id: "3.16", text: "Confidential emails encrypted via S/MIME or SMTP-over-TLS?", type: "Yes / No", risk: "High" },
               { id: "3.17", text: "Current status and ongoing roadmap towards Zero Trust Architecture (ZTA)", type: "Text", risk: "High" },
-              { id: "3.18", text: "API security framework and API gateway protection details", type: "Text", risk: "High" }
+              { id: "3.18", text: "API security framework and API gateway protection details", type: "Text", risk: "High" },
+              { id: "3.46", text: "Are guest/visitor networks strictly separated from internal corporate networks and production environments?", type: "Yes / No", risk: "High" }
             ]
           },
           {
@@ -1185,7 +1193,8 @@
               { id: "3.37", text: "Direct network connections or API bridges between insured's network and client systems?", type: "Yes / No", risk: "High" },
               { id: "3.38", text: "Default administrative passwords changed across 100% of network routers and switches?", type: "Yes / No", risk: "Critical" },
               { id: "3.39", text: "Centralized software deployment tool (SCCM/Intune/Jamf) utilized?", type: "Yes / No", risk: "Medium" },
-              { id: "3.40", text: "Redundant power generators and UPS systems protecting critical data centers?", type: "Yes / No", risk: "High" }
+              { id: "3.40", text: "Redundant power generators and UPS systems protecting critical data centers?", type: "Yes / No", risk: "High" },
+              { id: "3.47", text: "Are public data sharing restrictions and private-by-default access controls enforced across all cloud storage buckets and drives?", type: "Yes / No", risk: "Critical" }
             ]
           },
           {
@@ -1224,7 +1233,8 @@
               { id: "4.8", text: "Password complexity standards (min 12 chars, rotation, non-dictionary, history block)", type: "Yes / No", risk: "High" },
               { id: "4.9", text: "Unique named credentials assigned to each individual (no shared accounts)?", type: "Yes / No", risk: "Critical" },
               { id: "4.10", text: "Access to sensitive databases restricted strictly on business-need-to-know?", type: "Yes / No", risk: "High" },
-              { id: "4.11", text: "Formal documented user provisioning and role-change approval workflows?", type: "Yes / No", risk: "Medium" }
+              { id: "4.11", text: "Formal documented user provisioning and role-change approval workflows?", type: "Yes / No", risk: "Medium" },
+              { id: "4.61", text: "Are inactive, dormant, or orphaned user accounts automatically detected, disabled, and decommissioned after 30-90 days?", type: "Yes / No", risk: "High" }
             ]
           },
           {
@@ -1439,7 +1449,8 @@
               { id: "8.5", text: "Unified CMDB integrating on-premise hardware, public cloud instances, and SaaS services?", type: "Yes / No", risk: "High" },
               { id: "8.6", text: "Monthly automated network sweeps to discover rogue and unmanaged hardware devices?", type: "Yes / No", risk: "Critical" },
               { id: "8.7", text: "Network switches drop unauthorized MAC addresses via 802.1X port authentication?", type: "Yes / No", risk: "High" },
-              { id: "8.8", text: "Custody chain and employee accountability tracking for all corporate laptops?", type: "Yes / No", risk: "Medium" }
+              { id: "8.8", text: "Custody chain and employee accountability tracking for all corporate laptops?", type: "Yes / No", risk: "Medium" },
+              { id: "8.9", text: "Is software licensing actively monitored, reconciled, and audited to prevent unauthorized or rogue software usage?", type: "Yes / No", risk: "Medium" }
             ]
           }
         ]
@@ -1488,7 +1499,8 @@
               { id: "10.3", text: "Mandatory annual cyber security training and simulated anti-phishing campaigns?", type: "Yes / No", risk: "Critical" },
               { id: "10.4", text: "Cadence of security awareness training delivered to workforce (Quarterly/Monthly)", type: "Dropdown", risk: "High" },
               { id: "10.5", text: "Curriculum covers: Passwords, MFA, Social Engineering, WFH, Clean Desk, Wi-Fi Safety", type: "Multi-select", risk: "High" },
-              { id: "10.6", text: "User and Entity Behavior Analytics (UEBA) deployed to detect insider threat anomalies?", type: "Yes / No", risk: "High" }
+              { id: "10.6", text: "User and Entity Behavior Analytics (UEBA) deployed to detect insider threat anomalies?", type: "Yes / No", risk: "High" },
+              { id: "10.7", text: "Is the effectiveness of cybersecurity awareness training quantitatively measured (e.g., tracking simulated phishing failure rates)?", type: "Yes / No", risk: "High" }
             ]
           }
         ]
@@ -1613,7 +1625,9 @@
             name: "Legal Advisory & Regulatory Fines",
             queries: [
               { id: "14.11", text: "Retained specialized external cyber incident legal counsel on 24/7 emergency standby?", type: "Yes / No", risk: "High" },
-              { id: "14.12", text: "Formal process and internal reserves for managing potential regulatory penalties?", type: "Yes / No", risk: "High" }
+              { id: "14.12", text: "Formal process and internal reserves for managing potential regulatory penalties?", type: "Yes / No", risk: "High" },
+              { id: "14.15", text: "Are internal and external cyber audit findings and non-conformities tracked in a formal corrective action plan (CAPA)?", type: "Yes / No", risk: "High" },
+              { id: "14.16", text: "Is centralized, tamper-evident audit documentation and technical evidence maintained to demonstrate compliance?", type: "Yes / No", risk: "High" }
             ]
           },
           {
@@ -2170,8 +2184,9 @@
     }
 
     function renderSimulatorControl(query) {
+      let mainControl = '';
       if (query.type === 'Yes / No') {
-        return `
+        mainControl = `
           <div style="font-size:11.5px; color:var(--text-secondary); margin-bottom:6px;">Select verification response:</div>
           <div class="sim-toggle-row">
             <button class="sim-btn-choice selected" onclick="selectChoice(this)">✓ YES (Compliant)</button>
@@ -2180,17 +2195,17 @@
           <textarea class="sim-textarea" placeholder="Mandatory technical justification, implementation details, or compensating controls..."></textarea>
         `;
       } else if (query.type === 'Numeric') {
-        return `
+        mainControl = `
           <div style="font-size:11.5px; color:var(--text-secondary); margin-bottom:4px;">Enter quantified asset/revenue metric:</div>
           <input type="number" class="sim-input" placeholder="e.g. 500,000" />
         `;
       } else if (query.type === 'Date') {
-        return `
+        mainControl = `
           <div style="font-size:11.5px; color:var(--text-secondary); margin-bottom:4px;">Select effective audit/policy date:</div>
           <input type="date" class="sim-input" value="2026-10-15" />
         `;
       } else if (query.type === 'Dropdown') {
-        return `
+        mainControl = `
           <div style="font-size:11.5px; color:var(--text-secondary); margin-bottom:4px;">Select cadence or architectural category:</div>
           <select class="sim-input">
             <option>Quarterly Audited</option>
@@ -2201,7 +2216,7 @@
           </select>
         `;
       } else if (query.type === 'Signature') {
-        return `
+        mainControl = `
           <div style="font-size:11.5px; color:var(--text-secondary); margin-bottom:6px;">Executive Declaration Attestation:</div>
           <div style="border:1px solid #334155; border-radius:6px; padding:10px; background:rgba(15,23,42,0.9); font-size:11px; line-height:1.4; color:#94a3b8; font-style:italic; margin-bottom:8px;">
             "I hereby warrant that the answers given are true, complete in all material respects, and no material cyber risks have been withheld."
@@ -2209,16 +2224,55 @@
           <input type="text" class="sim-input" placeholder="Signer Full Legal Name & Official C-Suite Designation" />
         `;
       } else {
-        return `
+        mainControl = `
           <div style="font-size:11.5px; color:var(--text-secondary); margin-bottom:4px;">Enter enterprise response / policy narrative:</div>
           <textarea class="sim-textarea" placeholder="Detailed multi-line explanation of organizational governance and security architecture..."></textarea>
         `;
       }
+
+      const rcrqControl = `
+        <div style="margin-top:14px; padding-top:12px; border-top:1px dashed rgba(255,255,255,0.12);">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+            <span style="font-size:11px; font-weight:700; color:#60a5fa; text-transform:uppercase; letter-spacing:0.5px;">R-CRQ™ Quantification Score:</span>
+            <span style="font-size:10px; font-family:var(--font-mono); color:#94a3b8;" id="rcrq-selected-score">Score: 0 (Minimal Risk)</span>
+          </div>
+          <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:6px;">
+            <button class="rcrq-score-btn" data-score="0" onclick="selectRcrqScore(this, 0)" style="padding:7px 2px; font-size:10.5px; border-radius:6px; border:1px solid #10b981; background:rgba(16,185,129,0.25); color:#6ee7b7; cursor:pointer; font-weight:700; text-align:center;">
+              Excellent<br><span style="font-size:9.5px; font-family:var(--font-mono); opacity:0.85;">0 pts</span>
+            </button>
+            <button class="rcrq-score-btn" data-score="2" onclick="selectRcrqScore(this, 2)" style="padding:7px 2px; font-size:10.5px; border-radius:6px; border:1px solid #334155; background:rgba(30,41,59,0.8); color:#94a3b8; cursor:pointer; font-weight:600; text-align:center;">
+              Good<br><span style="font-size:9.5px; font-family:var(--font-mono); opacity:0.85;">2 pts</span>
+            </button>
+            <button class="rcrq-score-btn" data-score="5" onclick="selectRcrqScore(this, 5)" style="padding:7px 2px; font-size:10.5px; border-radius:6px; border:1px solid #334155; background:rgba(30,41,59,0.8); color:#94a3b8; cursor:pointer; font-weight:600; text-align:center;">
+              Fair<br><span style="font-size:9.5px; font-family:var(--font-mono); opacity:0.85;">5 pts</span>
+            </button>
+            <button class="rcrq-score-btn" data-score="10" onclick="selectRcrqScore(this, 10)" style="padding:7px 2px; font-size:10.5px; border-radius:6px; border:1px solid #334155; background:rgba(30,41,59,0.8); color:#94a3b8; cursor:pointer; font-weight:600; text-align:center;">
+              Poor<br><span style="font-size:9.5px; font-family:var(--font-mono); opacity:0.85;">10 pts</span>
+            </button>
+          </div>
+        </div>
+      `;
+
+      return mainControl + rcrqControl;
     }
 
     function selectChoice(btn) {
       btn.parentElement.querySelectorAll('.sim-btn-choice').forEach(b => b.classList.remove('selected'));
       btn.classList.add('selected');
+    }
+
+    function selectRcrqScore(btn, score) {
+      btn.parentElement.querySelectorAll('.rcrq-score-btn').forEach(b => {
+        b.style.background = 'rgba(30,41,59,0.8)';
+        b.style.color = '#94a3b8';
+      });
+      const colors = { 0: { bg: 'rgba(16,185,129,0.25)', color: '#6ee7b7' }, 2: { bg: 'rgba(59,130,246,0.25)', color: '#93c5fd' }, 5: { bg: 'rgba(245,158,11,0.25)', color: '#fcd34d' }, 10: { bg: 'rgba(239,68,68,0.25)', color: '#fca5a5' } };
+      btn.style.background = colors[score].bg;
+      btn.style.color = colors[score].color;
+      const labels = { 0: 'Score: 0 (Minimal Risk)', 2: 'Score: 2 (Low Risk)', 5: 'Score: 5 (Moderate Risk)', 10: 'Score: 10 (Critical Risk)' };
+      const scoreLabel = document.getElementById('rcrq-selected-score');
+      if (scoreLabel) scoreLabel.innerText = labels[score];
+      showToast(`R-CRQ™ Score recorded: ${score} points`);
     }
 
     function closeInspector() {
