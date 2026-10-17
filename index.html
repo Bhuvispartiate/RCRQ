@@ -886,20 +886,77 @@
     .toast-msg.show {
       transform: translateX(-50%) translateY(0);
     }
+
+    /* TOPOLOGY VIEW SWITCHER */
+    .floating-topology-switcher {
+      position: fixed;
+      top: 18px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(15, 23, 42, 0.94);
+      border: 1px solid var(--border-color);
+      border-radius: 30px;
+      padding: 4px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      backdrop-filter: blur(16px);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+      z-index: 100;
+    }
+
+    .topology-toggle-btn {
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--text-secondary);
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-size: 11.5px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .topology-toggle-btn:hover {
+      color: var(--text-primary);
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    .topology-toggle-btn.active {
+      background: #3b82f6;
+      color: #ffffff;
+      border-color: rgba(255, 255, 255, 0.2);
+      box-shadow: 0 2px 10px rgba(59, 130, 246, 0.45);
+    }
   </style>
 </head>
 <body>
 
   <!-- FLOATING MINIMAL BRAND PILL (NO TOOLBAR) -->
   <div class="floating-brand-pill">
-    <div class="pill-icon">14</div>
+    <div class="pill-icon" id="brand-pill-icon">12</div>
     <div class="pill-info">
       <div class="pill-title">
         RYSKMEN Cyber Risk Quantification Map (R-CRQ™)
         <span class="drag-hint-badge">Drag & Drop Any Box</span>
       </div>
-      <div class="pill-sub">The Big 14 Departments • 31 Segments • 281 Queries (R-CRQ™ Aligned)</div>
+      <div class="pill-sub" id="brand-pill-sub">12 Core Divisions • 25 Segments • 212 Quantified Queries (100% R-CRQ™ Aligned)</div>
     </div>
+  </div>
+
+  <!-- TOPOLOGY VIEW TOGGLE (SWITCH BETWEEN DEPARTMENT & R-CRQ DOMAIN) -->
+  <div class="floating-topology-switcher">
+    <button class="topology-toggle-btn active" id="btn-topo-dept" onclick="switchTopology('department')">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+      <span>Department View (12 Depts)</span>
+    </button>
+    <button class="topology-toggle-btn" id="btn-topo-domain" onclick="switchTopology('domain')">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+      <span>R-CRQ™ Domain View (10 Domains)</span>
+    </button>
   </div>
 
   <!-- FLOATING QUICK ACTIONS (TOP RIGHT) -->
@@ -1023,8 +1080,8 @@
 
   <!-- COMPLETE DATASET & DRAG-AND-DROP LOGIC -->
   <script>
-    /* MASTER DATA ARCHITECTURE: THE BIG 14 */
-    const INITIAL_ASSESSMENT_DATA = [
+    /* MASTER DATA ARCHITECTURE: 12 CORE DIVISIONS (DEPARTMENT VIEW) */
+    const DEPT_ASSESSMENT_DATA = [
       {
         id: 1,
         deptNumber: "01",
@@ -1036,20 +1093,9 @@
         segments: [
           {
             letter: "A",
-            name: "Company Profile & Legal Identity",
+            name: "Technical Scope & Security Governance",
             queries: [
-              { id: "1.1", text: "Full legal name of each natural person, incorporated body (including subsidiaries) to be insured, with date of establishment", type: "Text", risk: "Governance" },
-              { id: "1.2", text: "List all subsidiaries to be covered under the cyber policy", type: "Text", risk: "Governance" },
-              { id: "1.3", text: "Principal address (Registered Office, Country, Pin Code, Contact Name, Email, Telephone)", type: "Text", risk: "Governance" },
-              { id: "1.4", text: "Is this a new client or existing client renewal?", type: "Dropdown", risk: "Governance" },
-              { id: "1.5", text: "Business description — State fully your core business activities", type: "Text", risk: "Medium" },
-              { id: "1.6", text: "Website address(es)", type: "Text", risk: "Medium" },
               { id: "1.7", text: "List all website domain names (addressable from the internet) that should be covered", type: "Text", risk: "High" },
-              { id: "1.8", text: "Is the company Public or Private?", type: "Dropdown", risk: "Governance" },
-              { id: "1.9", text: "What industry does the organization belong to? (IT/ITES, Manufacturing, Retail, Pharma, BFSI, etc.)", type: "Dropdown", risk: "High" },
-              { id: "1.10", text: "Regions of operations / Customer database presence (USA, Canada, Australia, Europe, UK, Japan, Singapore, India, ROW)", type: "Multi-select", risk: "Critical" },
-              { id: "1.11", text: "Countries with data exchange agreements or cross-border partnerships — specify", type: "Multi-select", risk: "High" },
-              { id: "1.12", text: "Have you undertaken or likely to undertake work overseas? (Country, Type of Work, Revenue)", type: "Table", risk: "High" },
               { id: "1.13", text: "What is the level of business dependency on website/online systems? (High / Medium / Low)", type: "Dropdown", risk: "Critical" },
               { id: "1.14", text: "List of entities covered and current structure of IT-Information security team (Roles, Reporting, Strength)", type: "Text", risk: "High" },
               { id: "1.15", text: "Is IT security infrastructure centralized or decentralized across all entities?", type: "Dropdown", risk: "High" },
@@ -1083,7 +1129,7 @@
       {
         id: 2,
         deptNumber: "02",
-        title: "Finance / Accounts",
+        title: "Finance / Cyber Risk Economics",
         responsible: "CFO, Finance Controller, Accounts Team",
         accent: "#10b981",
         initialX: 860,
@@ -1091,39 +1137,17 @@
         segments: [
           {
             letter: "A",
-            name: "Revenue & Financial Information",
+            name: "Business Interruption Impact",
             queries: [
-              { id: "2.1", text: "Gross turnover/revenue for last 12 months — broken down by region and fiscal year", type: "Table", risk: "High" },
-              { id: "2.2", text: "Gross turnover/revenue created online (e-commerce) — broken down by region and year", type: "Table", risk: "High" },
-              { id: "2.3", text: "Currency of reporting (INR, USD, EUR, etc.)", type: "Dropdown", risk: "Governance" },
-              { id: "2.4", text: "Gross Profit calculation for the insured entity", type: "Numeric", risk: "High" },
               { id: "2.5", text: "Estimated duration in which organization incurs loss of profit after cyber attack (0-8h, 8-12h, 12-24h, 24-48h+)", type: "Dropdown", risk: "Critical" }
             ]
           },
           {
             letter: "B",
-            name: "Insurance & Policy Details",
+            name: "Financial Cyber Exposure & Insurance Adequacy",
             queries: [
-              { id: "2.6", text: "Policy Period requested (Effective From & To dates)", type: "Date", risk: "Governance" },
-              { id: "2.7", text: "Retroactive Date requested for past acts/claims", type: "Date", risk: "Critical" },
-              { id: "2.8", text: "Policy limit(s) quote requested (Sum Insured)", type: "Numeric", risk: "Critical" },
-              { id: "2.9", text: "Current cyber insurance in place or purchased previously? (Insurer, Limit, Deductible)", type: "Table", risk: "High" },
-              { id: "2.10", text: "Ever had an insurer decline proposal, cancel, or impose special punitive terms?", type: "Yes / No", risk: "Critical" },
-              { id: "2.11", text: "Are cyber extortion costs covered by existing insurance policies?", type: "Yes / No", risk: "High" },
               { id: "2.12", text: "Formal process for assessing financial impact of security breach?", type: "Yes / No", risk: "High" },
               { id: "2.19", text: "Is cyber insurance coverage, limits of indemnity, and deductible adequacy reviewed annually against emerging exposure?", type: "Yes / No", risk: "High" }
-            ]
-          },
-          {
-            letter: "C",
-            name: "Payment & Statutory KYC",
-            queries: [
-              { id: "2.13", text: "Mode of Payment (NEFT/RTGS/Cheque), Instrument No. and Date", type: "Text", risk: "Governance" },
-              { id: "2.14", text: "Premium Amount in Figures and Words", type: "Numeric", risk: "Governance" },
-              { id: "2.15", text: "Nationality status (Indian / Non-Indian)", type: "Dropdown", risk: "Governance" },
-              { id: "2.16", text: "Permanent Account Number (PAN) Card Details", type: "Text", risk: "Governance" },
-              { id: "2.17", text: "GST Registration & State Code Details", type: "Text", risk: "Governance" },
-              { id: "2.18", text: "Source of Funds Declaration (Business, Salary, Corporate Reserves)", type: "Dropdown", risk: "Governance" }
             ]
           }
         ]
@@ -1494,7 +1518,6 @@
             letter: "A",
             name: "Workforce Security & Phishing Awareness",
             queries: [
-              { id: "10.1", text: "Total headcount of active employees broken down by country of deployment", type: "Table", risk: "Medium" },
               { id: "10.2", text: "Rigorous background checks and identity verification prior to employee/contractor onboarding?", type: "Yes / No", risk: "High" },
               { id: "10.3", text: "Mandatory annual cyber security training and simulated anti-phishing campaigns?", type: "Yes / No", risk: "Critical" },
               { id: "10.4", text: "Cadence of security awareness training delivered to workforce (Quarterly/Monthly)", type: "Dropdown", risk: "High" },
@@ -1533,126 +1556,376 @@
         ]
       },
       {
-        id: 12,
-        deptNumber: "12",
-        title: "Physical Security / Facilities Management",
-        responsible: "Facilities Director, Corporate Physical Security",
-        accent: "#64748b",
+        id: 14,
+        deptNumber: "14",
+        title: "Legal / Compliance / Risk Governance",
+        responsible: "General Counsel, Chief Compliance Officer, Risk Committee",
+        accent: "#2563eb",
         initialX: 1880,
         initialY: 1720,
         segments: [
           {
             letter: "A",
-            name: "Facility Protection & Physical Controls",
-            queries: [
-              { id: "12.1", text: "Physical perimeter security, badge turnstiles, and guard patrols protecting data centers?", type: "Yes / No", risk: "High" },
-              { id: "12.2", text: "Multi-factor biometric access controls enforced for entry into server rooms?", type: "Yes / No", risk: "Critical" },
-              { id: "12.3", text: "CCTV surveillance with minimum 90-day video archive coverage across critical facilities?", type: "Yes / No", risk: "High" },
-              { id: "12.4", text: "Unused physical Ethernet network ports in public areas/conference rooms disabled?", type: "Yes / No", risk: "Medium" },
-              { id: "12.5", text: "Physical intrusion detection and alarmed emergency exit doors monitored 24/7?", type: "Yes / No", risk: "High" },
-              { id: "12.6", text: "Cadence of physical penetration testing and emergency evacuation drills conducted", type: "Dropdown", risk: "Medium" },
-              { id: "12.7", text: "Authorized access lists for server rooms reviewed and reconciled monthly?", type: "Yes / No", risk: "High" },
-              { id: "12.8", text: "Physical asset tagging and barcode inventory maintained for all equipment?", type: "Yes / No", risk: "Medium" },
-              { id: "12.9", text: "Strict visitor escort policies and mandatory signed visitor logs maintained?", type: "Yes / No", risk: "Medium" }
-            ]
-          }
-        ]
-      },
-      {
-        id: 13,
-        deptNumber: "13",
-        title: "Manufacturing / OT / Industrial Control Systems",
-        responsible: "Plant General Manager, OT Security Engineers, SCADA Leads",
-        accent: "#d97706",
-        initialX: 600,
-        initialY: 2350,
-        segments: [
-          {
-            letter: "A",
-            name: "Operational Technology (OT) & SCADA Defense",
-            queries: [
-              { id: "13.1", text: "Total count of operational manufacturing plants, factories, and industrial sites", type: "Numeric", risk: "High" },
-              { id: "13.2", text: "Third-party vendors utilized for plant automation, maintenance, or PLC programming?", type: "Yes / No", risk: "High" },
-              { id: "13.3", text: "Manufacturing OT network strictly air-gapped or separated via industrial DMZ (Purdue Model)?", type: "Yes / No", risk: "Critical" },
-              { id: "13.4", text: "Enterprise Information Security Policy specifically adapted and enforced for OT/plant systems?", type: "Yes / No", risk: "High" },
-              { id: "13.5", text: "Strict security protocols for third-party engineering laptops connecting to factory PLCs?", type: "Yes / No", risk: "Critical" },
-              { id: "13.6", text: "Application whitelisting or specialized OT anti-malware deployed on HMIs and SCADA servers?", type: "Yes / No", risk: "Critical" },
-              { id: "13.7", text: "Formal OT patch management cycle testing firmware updates during planned plant turnarounds?", type: "Yes / No", risk: "High" },
-              { id: "13.8", text: "Industrial control system software validated in test environments before deployment to line?", type: "Yes / No", risk: "High" },
-              { id: "13.9", text: "PLC and SCADA configuration logic backups maintained and tested for fast recovery?", type: "Yes / No", risk: "Critical" },
-              { id: "13.10", text: "Any unauthorized direct cellular/modem internet breakouts in the industrial environment?", type: "Yes / No", risk: "Critical" },
-              { id: "13.11", text: "Complete network topology and communication flow diagrams documented for OT?", type: "Yes / No", risk: "High" },
-              { id: "13.12", text: "Industrial wireless (WirelessHART, ISA100) isolated with strong encryption?", type: "Yes / No", risk: "High" },
-              { id: "13.13", text: "Remote access allowed into plant networks for equipment maintenance?", type: "Yes / No", risk: "Critical" },
-              { id: "13.14", text: "Four-eyes authorization and mandatory MFA enforced for any vendor remote plant access?", type: "Yes / No", risk: "Critical" },
-              { id: "13.15", text: "Pre-connection device posture verification required for all remote technician laptops?", type: "Yes / No", risk: "High" },
-              { id: "13.16", text: "Targeted safety and industrial cyber awareness training delivered to plant floor staff?", type: "Yes / No", risk: "Medium" },
-              { id: "13.17", text: "Automated real-time inventory of all connected IoT, sensors, and OT controllers?", type: "Yes / No", risk: "High" },
-              { id: "13.18", text: "Cadence of OT network vulnerability assessments utilizing passive listening tools (Nozomi/Claroty)", type: "Dropdown", risk: "High" },
-              { id: "13.19", text: "Safety Instrumented Systems (SIS) physically and logically isolated from basic process control?", type: "Yes / No", risk: "Critical" },
-              { id: "13.20", text: "Dependency of production output on corporate IT networks (SAP/ERP links)? Outage financial impact", type: "Text", risk: "Critical" }
-            ]
-          }
-        ]
-      },
-      {
-        id: 14,
-        deptNumber: "14",
-        title: "Legal / Compliance / Risk Management",
-        responsible: "General Counsel, Chief Compliance Officer, Risk Committee",
-        accent: "#2563eb",
-        initialX: 1600,
-        initialY: 2350,
-        segments: [
-          {
-            letter: "A",
-            name: "Claims History & Loss Experience",
-            queries: [
-              { id: "14.1", text: "Past 5-year history of cyber extortion, network misuse, data theft, or wire fraud incidents?", type: "Yes / No", risk: "Critical" },
-              { id: "14.2", text: "Ever experienced an unplanned business interruption > 4 hours caused by a cyber outage?", type: "Yes / No", risk: "Critical" },
-              { id: "14.3", text: "Ever experienced a ransomware extortion demand or encrypted file hostage scenario?", type: "Yes / No", risk: "Critical" },
-              { id: "14.4", text: "Ever received claims, complaints, or lawsuits regarding privacy violations or data leaks?", type: "Yes / No", risk: "Critical" },
-              { id: "14.5", text: "Subject to any regulatory inquiry, subpoena, or fine by data protection regulators?", type: "Yes / No", risk: "Critical" },
-              { id: "14.6", text: "Aware of any actual or suspected unauthorized disclosure of sensitive PII records?", type: "Yes / No", risk: "Critical" },
-              { id: "14.7", text: "Aware of any latent fact or circumstance that could foreseeably give rise to an insurance claim?", type: "Yes / No", risk: "Critical" },
-              { id: "14.8", text: "Historical schedule of all cyber claims notified to insurers in the past 5 years", type: "Table", risk: "Critical" },
-              { id: "14.9", text: "Detailed circumstances not yet formally reported to insurers which may result in claims", type: "Table", risk: "Critical" },
-              { id: "14.10", text: "Any corporate officers subjected to disciplinary or criminal proceedings for regulatory non-compliance?", type: "Table", risk: "Critical" }
-            ]
-          },
-          {
-            letter: "B",
-            name: "Legal Advisory & Regulatory Fines",
+            name: "Legal Advisory & Regulatory Compliance",
             queries: [
               { id: "14.11", text: "Retained specialized external cyber incident legal counsel on 24/7 emergency standby?", type: "Yes / No", risk: "High" },
               { id: "14.12", text: "Formal process and internal reserves for managing potential regulatory penalties?", type: "Yes / No", risk: "High" },
               { id: "14.15", text: "Are internal and external cyber audit findings and non-conformities tracked in a formal corrective action plan (CAPA)?", type: "Yes / No", risk: "High" },
               { id: "14.16", text: "Is centralized, tamper-evident audit documentation and technical evidence maintained to demonstrate compliance?", type: "Yes / No", risk: "High" }
             ]
-          },
+          }
+        ]
+      }
+    ];
+
+    /* RYSKMEN CYBER RISK QUANTIFICATION FRAMEWORK (10 DOMAINS VIEW) */
+    const DOMAIN_ASSESSMENT_DATA = [
+      {
+        id: 101,
+        deptNumber: "D1",
+        title: "Governance & Cyber Risk Management",
+        responsible: "Leadership Commitment & Cyber Governance (Weight: 10%)",
+        accent: "#3b82f6",
+        initialX: 200,
+        initialY: 480,
+        segments: [
           {
-            letter: "C",
-            name: "Underwriting Warranties & Declarations",
+            letter: "A",
+            name: "Objective: Assess leadership commitment and cyber governance",
             queries: [
-              { id: "14.13", text: "Legal Warranty of Truthfulness: Authorized sign-off attesting all disclosures are accurate", type: "Signature", risk: "Critical" },
-              { id: "14.14", text: "Statutory Anti-Money Laundering (PMLA 2002) Bona Fide Source of Funds Declaration", type: "Signature", risk: "Critical" }
+              { id: "D1.1", text: "Is there an approved Cyber Security Policy?", type: "Yes / No", risk: "Critical" },
+              { id: "D1.2", text: "Is a person responsible for cyber security formally appointed?", type: "Yes / No", risk: "Critical" },
+              { id: "D1.3", text: "Does management review cyber risks at least quarterly?", type: "Yes / No", risk: "High" },
+              { id: "D1.4", text: "Are cyber risks included in the organization's risk register?", type: "Yes / No", risk: "High" },
+              { id: "D1.5", text: "Is there an annual cyber risk assessment process?", type: "Yes / No", risk: "Critical" },
+              { id: "D1.6", text: "Are employees informed about cyber policies?", type: "Yes / No", risk: "Medium" },
+              { id: "D1.7", text: "Is cyber security included in business planning?", type: "Yes / No", risk: "High" },
+              { id: "D1.8", text: "Are third-party cyber risks reviewed before engagement?", type: "Yes / No", risk: "High" },
+              { id: "D1.9", text: "Are cyber incidents reported to senior management?", type: "Yes / No", risk: "Critical" },
+              { id: "D1.10", text: "Is cyber security budget allocated annually?", type: "Yes / No", risk: "High" }
+            ]
+          }
+        ]
+      },
+      {
+        id: 102,
+        deptNumber: "D2",
+        title: "Asset Management",
+        responsible: "Identify and Protect Critical Assets (Weight: 8%)",
+        accent: "#10b981",
+        initialX: 720,
+        initialY: 480,
+        segments: [
+          {
+            letter: "A",
+            name: "Objective: Identify and protect critical assets",
+            queries: [
+              { id: "D2.1", text: "Is an inventory of all IT assets maintained?", type: "Yes / No", risk: "Critical" },
+              { id: "D2.2", text: "Are software assets documented?", type: "Yes / No", risk: "High" },
+              { id: "D2.3", text: "Are critical business applications identified?", type: "Yes / No", risk: "Critical" },
+              { id: "D2.4", text: "Are company-owned devices labelled?", type: "Yes / No", risk: "Medium" },
+              { id: "D2.5", text: "Is unused hardware securely disposed of?", type: "Yes / No", risk: "Medium" },
+              { id: "D2.6", text: "Is software licensing monitored?", type: "Yes / No", risk: "Medium" },
+              { id: "D2.7", text: "Are unsupported systems identified?", type: "Yes / No", risk: "Critical" },
+              { id: "D2.8", text: "Is asset ownership assigned?", type: "Yes / No", risk: "High" },
+              { id: "D2.9", text: "Are new assets registered before use?", type: "Yes / No", risk: "High" },
+              { id: "D2.10", text: "Is asset inventory reviewed periodically?", type: "Yes / No", risk: "High" }
+            ]
+          }
+        ]
+      },
+      {
+        id: 103,
+        deptNumber: "D3",
+        title: "Identity & Access Management",
+        responsible: "Control Access to Systems (Weight: 12%)",
+        accent: "#8b5cf6",
+        initialX: 1240,
+        initialY: 480,
+        segments: [
+          {
+            letter: "A",
+            name: "Objective: Control access to systems",
+            queries: [
+              { id: "D3.1", text: "Is Multi-Factor Authentication (MFA) enabled?", type: "Yes / No", risk: "Critical" },
+              { id: "D3.2", text: "Are strong password policies enforced?", type: "Yes / No", risk: "High" },
+              { id: "D3.3", text: "Are default passwords changed?", type: "Yes / No", risk: "Critical" },
+              { id: "D3.4", text: "Are inactive user accounts removed?", type: "Yes / No", risk: "High" },
+              { id: "D3.5", text: "Are privileged accounts monitored?", type: "Yes / No", risk: "Critical" },
+              { id: "D3.6", text: "Is role-based access implemented?", type: "Yes / No", risk: "High" },
+              { id: "D3.7", text: "Is VPN access secured?", type: "Yes / No", risk: "Critical" },
+              { id: "D3.8", text: "Are administrator accounts separated from user accounts?", type: "Yes / No", risk: "Critical" },
+              { id: "D3.9", text: "Are login attempts monitored?", type: "Yes / No", risk: "High" },
+              { id: "D3.10", text: "Is access reviewed periodically?", type: "Yes / No", risk: "High" }
+            ]
+          }
+        ]
+      },
+      {
+        id: 104,
+        deptNumber: "D4",
+        title: "Endpoint Security",
+        responsible: "Protect Laptops, Desktops and Mobile Devices (Weight: 10%)",
+        accent: "#06b6d4",
+        initialX: 1760,
+        initialY: 480,
+        segments: [
+          {
+            letter: "A",
+            name: "Objective: Protect laptops, desktops and mobile devices",
+            queries: [
+              { id: "D4.1", text: "Is antivirus installed on all endpoints?", type: "Yes / No", risk: "Critical" },
+              { id: "D4.2", text: "Is Endpoint Detection & Response (EDR) deployed?", type: "Yes / No", risk: "Critical" },
+              { id: "D4.3", text: "Are operating systems patched regularly?", type: "Yes / No", risk: "High" },
+              { id: "D4.4", text: "Are applications updated?", type: "Yes / No", risk: "High" },
+              { id: "D4.5", text: "Is USB device usage controlled?", type: "Yes / No", risk: "High" },
+              { id: "D4.6", text: "Are laptops encrypted?", type: "Yes / No", risk: "Critical" },
+              { id: "D4.7", text: "Are mobile devices secured?", type: "Yes / No", risk: "High" },
+              { id: "D4.8", text: "Are endpoint logs monitored?", type: "Yes / No", risk: "High" },
+              { id: "D4.9", text: "Are unauthorized applications blocked?", type: "Yes / No", risk: "High" },
+              { id: "D4.10", text: "Are endpoint security audits conducted?", type: "Yes / No", risk: "Medium" }
+            ]
+          }
+        ]
+      },
+      {
+        id: 105,
+        deptNumber: "D5",
+        title: "Network Security",
+        responsible: "Secure Network Infrastructure (Weight: 10%)",
+        accent: "#0284c7",
+        initialX: 2280,
+        initialY: 480,
+        segments: [
+          {
+            letter: "A",
+            name: "Objective: Secure network infrastructure",
+            queries: [
+              { id: "D5.1", text: "Is a firewall installed?", type: "Yes / No", risk: "Critical" },
+              { id: "D5.2", text: "Are firewall rules reviewed regularly?", type: "Yes / No", risk: "High" },
+              { id: "D5.3", text: "Is Wi-Fi secured with strong encryption?", type: "Yes / No", risk: "High" },
+              { id: "D5.4", text: "Are guest and corporate networks separated?", type: "Yes / No", risk: "High" },
+              { id: "D5.5", text: "Is network traffic monitored?", type: "Yes / No", risk: "High" },
+              { id: "D5.6", text: "Are routers updated regularly?", type: "Yes / No", risk: "High" },
+              { id: "D5.7", text: "Are remote connections secured?", type: "Yes / No", risk: "Critical" },
+              { id: "D5.8", text: "Is network segmentation implemented?", type: "Yes / No", risk: "Critical" },
+              { id: "D5.9", text: "Is intrusion detection/prevention used?", type: "Yes / No", risk: "Critical" },
+              { id: "D5.10", text: "Are vulnerability scans conducted?", type: "Yes / No", risk: "Critical" }
+            ]
+          }
+        ]
+      },
+      {
+        id: 106,
+        deptNumber: "D6",
+        title: "Cloud Security",
+        responsible: "Secure Cloud Environments (Weight: 10%)",
+        accent: "#ec4899",
+        initialX: 200,
+        initialY: 1150,
+        segments: [
+          {
+            letter: "A",
+            name: "Objective: Secure cloud environments",
+            queries: [
+              { id: "D6.1", text: "Are cloud accounts protected by MFA?", type: "Yes / No", risk: "Critical" },
+              { id: "D6.2", text: "Is cloud data encrypted?", type: "Yes / No", risk: "Critical" },
+              { id: "D6.3", text: "Are cloud backups maintained?", type: "Yes / No", risk: "Critical" },
+              { id: "D6.4", text: "Are cloud permissions reviewed?", type: "Yes / No", risk: "High" },
+              { id: "D6.5", text: "Is public data sharing restricted?", type: "Yes / No", risk: "Critical" },
+              { id: "D6.6", text: "Are cloud logs monitored?", type: "Yes / No", risk: "High" },
+              { id: "D6.7", text: "Is SaaS access managed centrally?", type: "Yes / No", risk: "High" },
+              { id: "D6.8", text: "Are cloud vendors assessed?", type: "Yes / No", risk: "High" },
+              { id: "D6.9", text: "Is sensitive cloud data classified?", type: "Yes / No", risk: "High" },
+              { id: "D6.10", text: "Is cloud recovery tested?", type: "Yes / No", risk: "Critical" }
+            ]
+          }
+        ]
+      },
+      {
+        id: 107,
+        deptNumber: "D7",
+        title: "Data Protection & Backup",
+        responsible: "Protect Business Information (Weight: 12%)",
+        accent: "#14b8a6",
+        initialX: 720,
+        initialY: 1150,
+        segments: [
+          {
+            letter: "A",
+            name: "Objective: Protect business information",
+            queries: [
+              { id: "D7.1", text: "Is sensitive data identified?", type: "Yes / No", risk: "Critical" },
+              { id: "D7.2", text: "Is confidential data encrypted?", type: "Yes / No", risk: "Critical" },
+              { id: "D7.3", text: "Are regular backups performed?", type: "Yes / No", risk: "Critical" },
+              { id: "D7.4", text: "Are backups stored offline or immutably?", type: "Yes / No", risk: "Critical" },
+              { id: "D7.5", text: "Are backups tested?", type: "Yes / No", risk: "Critical" },
+              { id: "D7.6", text: "Is data retention policy implemented?", type: "Yes / No", risk: "High" },
+              { id: "D7.7", text: "Is data securely destroyed?", type: "Yes / No", risk: "High" },
+              { id: "D7.8", text: "Are file permissions controlled?", type: "Yes / No", risk: "High" },
+              { id: "D7.9", text: "Is ransomware protection enabled?", type: "Yes / No", risk: "Critical" },
+              { id: "D7.10", text: "Is customer information protected?", type: "Yes / No", risk: "Critical" }
+            ]
+          }
+        ]
+      },
+      {
+        id: 108,
+        deptNumber: "D8",
+        title: "Human Risk & Awareness",
+        responsible: "Reduce Human-Related Cyber Risks (Weight: 8%)",
+        accent: "#f59e0b",
+        initialX: 1240,
+        initialY: 1150,
+        segments: [
+          {
+            letter: "A",
+            name: "Objective: Reduce human-related cyber risks",
+            queries: [
+              { id: "D8.1", text: "Do employees receive cyber awareness training?", type: "Yes / No", risk: "Critical" },
+              { id: "D8.2", text: "Is phishing training conducted?", type: "Yes / No", risk: "Critical" },
+              { id: "D8.3", text: "Are phishing simulations performed?", type: "Yes / No", risk: "Critical" },
+              { id: "D8.4", text: "Are new employees trained?", type: "Yes / No", risk: "High" },
+              { id: "D8.5", text: "Are contractors trained?", type: "Yes / No", risk: "High" },
+              { id: "D8.6", text: "Are social engineering risks discussed?", type: "Yes / No", risk: "High" },
+              { id: "D8.7", text: "Are password best practices taught?", type: "Yes / No", risk: "Medium" },
+              { id: "D8.8", text: "Is remote working guidance provided?", type: "Yes / No", risk: "High" },
+              { id: "D8.9", text: "Are employees encouraged to report suspicious emails?", type: "Yes / No", risk: "High" },
+              { id: "D8.10", text: "Is awareness effectiveness measured?", type: "Yes / No", risk: "High" }
+            ]
+          }
+        ]
+      },
+      {
+        id: 109,
+        deptNumber: "D9",
+        title: "Incident Response & Business Continuity",
+        responsible: "Ensure Readiness for Cyber Incidents (Weight: 10%)",
+        accent: "#f43f5e",
+        initialX: 1760,
+        initialY: 1150,
+        segments: [
+          {
+            letter: "A",
+            name: "Objective: Ensure readiness for cyber incidents",
+            queries: [
+              { id: "D9.1", text: "Is an Incident Response Plan documented?", type: "Yes / No", risk: "Critical" },
+              { id: "D9.2", text: "Are response roles defined?", type: "Yes / No", risk: "High" },
+              { id: "D9.3", text: "Are incidents recorded?", type: "Yes / No", risk: "High" },
+              { id: "D9.4", text: "Is a ransomware response plan available?", type: "Yes / No", risk: "Critical" },
+              { id: "D9.5", text: "Are incident response drills conducted?", type: "Yes / No", risk: "Critical" },
+              { id: "D9.6", text: "Is Business Continuity Plan documented?", type: "Yes / No", risk: "Critical" },
+              { id: "D9.7", text: "Is Disaster Recovery Plan documented?", type: "Yes / No", risk: "Critical" },
+              { id: "D9.8", text: "Are recovery objectives defined?", type: "Yes / No", risk: "High" },
+              { id: "D9.9", text: "Are emergency contacts maintained?", type: "Yes / No", risk: "High" },
+              { id: "D9.10", text: "Are lessons learned documented after incidents?", type: "Yes / No", risk: "High" }
+            ]
+          }
+        ]
+      },
+      {
+        id: 110,
+        deptNumber: "D10",
+        title: "Third-Party Risk & Compliance",
+        responsible: "Manage Supplier and Compliance Risks (Weight: 10%)",
+        accent: "#ea580c",
+        initialX: 2280,
+        initialY: 1150,
+        segments: [
+          {
+            letter: "A",
+            name: "Objective: Manage supplier and compliance risks",
+            queries: [
+              { id: "D10.1", text: "Are vendors assessed before on boarding?", type: "Yes / No", risk: "Critical" },
+              { id: "D10.2", text: "Are security clauses included in contracts?", type: "Yes / No", risk: "High" },
+              { id: "D10.3", text: "Are critical vendors reviewed annually?", type: "Yes / No", risk: "High" },
+              { id: "D10.4", text: "Are third-party incidents reported?", type: "Yes / No", risk: "High" },
+              { id: "D10.5", text: "Are regulatory requirements identified?", type: "Yes / No", risk: "Critical" },
+              { id: "D10.6", text: "Is compliance monitored?", type: "Yes / No", risk: "High" },
+              { id: "D10.7", text: "Are audit findings tracked?", type: "Yes / No", risk: "High" },
+              { id: "D10.8", text: "Cyber insurance reviewed annually?", type: "Yes / No", risk: "High" },
+              { id: "D10.9", text: "Are privacy requirements implemented?", type: "Yes / No", risk: "Critical" },
+              { id: "D10.10", text: "Is evidence maintained for audits?", type: "Yes / No", risk: "High" }
             ]
           }
         ]
       }
     ];
 
-    /* DEEP CLONE DATA FOR RUNTIME MUTATION */
+    /* TOPOLOGY STATE & CONFIGURATION */
+    let currentTopology = 'department'; // 'department' or 'domain'
+
+    const ROOT_CONFIG = {
+      department: {
+        x: 1120,
+        y: 60,
+        title: "Global Cyber Underwriting Map",
+        tag: "ENTERPRISE ASSURANCE TOPOLOGY",
+        desc: "Unified governance map spanning 12 core corporate divisions. Drag any box to reorganize your topology.",
+        divisions: "12",
+        divisionsLabel: "Divisions",
+        segments: "25",
+        segmentsLabel: "Segments",
+        queries: "212",
+        queriesLabel: "Queries",
+        pillIcon: "12",
+        pillSub: "12 Core Divisions • 25 Segments • 212 Quantified Queries (100% R-CRQ™ Aligned)"
+      },
+      domain: {
+        x: 1240,
+        y: 60,
+        title: "RYSKMEN Cyber Risk Quantification Framework",
+        tag: "OFFICIAL R-CRQ™ SCORING MODEL",
+        desc: "10-domain weighted quantitative assessment producing an overall 0–100 Cyber Risk Score. Drag any box to reorganize.",
+        divisions: "10",
+        divisionsLabel: "Domains",
+        segments: "100%",
+        segmentsLabel: "Weight Rollup",
+        queries: "100",
+        queriesLabel: "Benchmark Qs",
+        pillIcon: "10",
+        pillSub: "10 R-CRQ™ Domains • 100% Weighted Rollup • 100 Benchmark Queries (0–100 Score)"
+      }
+    };
+
+    let INITIAL_ASSESSMENT_DATA = DEPT_ASSESSMENT_DATA;
     let ASSESSMENT_DATA = JSON.parse(JSON.stringify(INITIAL_ASSESSMENT_DATA));
 
-    /* ROOT NODE DEFAULTS */
-    const INITIAL_ROOT = {
-      x: 1120,
-      y: 60,
+    /* ROOT NODE STATE */
+    let ROOT_NODE = {
+      x: ROOT_CONFIG[currentTopology].x,
+      y: ROOT_CONFIG[currentTopology].y,
       width: 440,
       height: 180
     };
-    let ROOT_NODE = { ...INITIAL_ROOT };
+
+    /* TOPOLOGY SWITCHER FUNCTION */
+    function switchTopology(mode) {
+      if (currentTopology === mode) return;
+      currentTopology = mode;
+
+      const btnDept = document.getElementById('btn-topo-dept');
+      const btnDomain = document.getElementById('btn-topo-domain');
+      if (btnDept) btnDept.classList.toggle('active', mode === 'department');
+      if (btnDomain) btnDomain.classList.toggle('active', mode === 'domain');
+
+      INITIAL_ASSESSMENT_DATA = mode === 'department' ? DEPT_ASSESSMENT_DATA : DOMAIN_ASSESSMENT_DATA;
+      ASSESSMENT_DATA = JSON.parse(JSON.stringify(INITIAL_ASSESSMENT_DATA));
+
+      const cfg = ROOT_CONFIG[mode];
+      ROOT_NODE.x = cfg.x;
+      ROOT_NODE.y = cfg.y;
+
+      const pillIcon = document.getElementById('brand-pill-icon');
+      if (pillIcon) pillIcon.innerText = cfg.pillIcon;
+      const pillSub = document.getElementById('brand-pill-sub');
+      if (pillSub) pillSub.innerText = cfg.pillSub;
+
+      renderAllNodes();
+      closeInspector();
+      fitView();
+      showToast(mode === 'department' ? "Switched to Department-Wise Topology (12 Divisions)" : "Switched to R-CRQ™ Domain-Wise Topology (10 Domains)");
+    }
 
     /* QUERY TYPE COLORS */
     const TYPE_COLORS = {
@@ -1703,6 +1976,7 @@
       rootEl.id = 'node-root';
       rootEl.style.left = `${ROOT_NODE.x}px`;
       rootEl.style.top = `${ROOT_NODE.y}px`;
+      const cfg = ROOT_CONFIG[currentTopology];
       rootEl.innerHTML = `
         <div class="root-header">
           <div class="root-brand-left">
@@ -1710,27 +1984,27 @@
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
             </div>
             <div>
-              <div class="root-title">Global Cyber Underwriting Map</div>
-              <div style="font-size: 10px; color: #60a5fa; font-weight: 600;">ENTERPRISE ASSURANCE TOPOLOGY</div>
+              <div class="root-title">${cfg.title}</div>
+              <div style="font-size: 10px; color: #60a5fa; font-weight: 600;">${cfg.tag}</div>
             </div>
           </div>
           <svg class="drag-grip-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2"><circle cx="9" cy="6" r="1.5"></circle><circle cx="15" cy="6" r="1.5"></circle><circle cx="9" cy="12" r="1.5"></circle><circle cx="15" cy="12" r="1.5"></circle><circle cx="9" cy="18" r="1.5"></circle><circle cx="15" cy="18" r="1.5"></circle></svg>
         </div>
         <div class="root-desc">
-          Unified governance map spanning 14 core corporate divisions. Drag any box to reorganize your topology.
+          ${cfg.desc}
         </div>
         <div class="root-stats">
           <div>
-            <strong>14</strong>
-            <span>Divisions</span>
+            <strong>${cfg.divisions}</strong>
+            <span>${cfg.divisionsLabel}</span>
           </div>
           <div>
-            <strong>31</strong>
-            <span>Segments</span>
+            <strong>${cfg.segments}</strong>
+            <span>${cfg.segmentsLabel}</span>
           </div>
           <div>
-            <strong>267</strong>
-            <span>Queries</span>
+            <strong>${cfg.queries}</strong>
+            <span>${cfg.queriesLabel}</span>
           </div>
         </div>
       `;
@@ -2009,7 +2283,9 @@
 
     function resetNodePositions() {
       ASSESSMENT_DATA = JSON.parse(JSON.stringify(INITIAL_ASSESSMENT_DATA));
-      ROOT_NODE = { ...INITIAL_ROOT };
+      const cfg = ROOT_CONFIG[currentTopology];
+      ROOT_NODE.x = cfg.x;
+      ROOT_NODE.y = cfg.y;
 
       const rootEl = document.getElementById('node-root');
       if (rootEl) {
@@ -2027,7 +2303,7 @@
 
       updateAllSvgPaths();
       fitView();
-      showToast("Reset all 14 boxes to default layout");
+      showToast(currentTopology === 'department' ? "Reset all 12 boxes to default layout" : "Reset all 10 domain boxes to default layout");
     }
 
     /* MINIMAP VIEWPORT CALCULATION */
@@ -2170,9 +2446,15 @@
 
       title.innerText = `Query ${foundQuery.id}`;
       fullText.innerText = foundQuery.text;
-      deptName.innerText = `Dept ${foundDept.deptNumber}: ${foundDept.title}`;
-      segName.innerText = `${foundSeg.letter}. ${foundSeg.name}`;
-      responsible.innerText = foundDept.responsible;
+      if (currentTopology === 'domain') {
+        deptName.innerText = `Domain ${foundDept.deptNumber}: ${foundDept.title}`;
+        segName.innerText = `${foundSeg.name}`;
+        responsible.innerText = `${foundDept.responsible}`;
+      } else {
+        deptName.innerText = `Dept ${foundDept.deptNumber}: ${foundDept.title}`;
+        segName.innerText = `${foundSeg.letter}. ${foundSeg.name}`;
+        responsible.innerText = foundDept.responsible;
+      }
 
       controls.innerHTML = renderSimulatorControl(foundQuery);
 
